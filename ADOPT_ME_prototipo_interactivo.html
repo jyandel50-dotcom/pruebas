@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADOPT ME — Prototipo interactivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --cream:#FAF6EF;
+  --cream-2:#F1EAE0;
+  --dark:#2E1D14;
+  --dark-2:#3D281C;
+  --orange:#E06D3B;
+  --orange-2:#C85A2C;
+  --orange-tint:#FBE4D8;
+  --taupe:#8C827A;
+  --taupe-tint:#EAE6E1;
+  --white:#FFFFFF;
+  --font-display:'Plus Jakarta Sans',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --radius:20px;
+  --radius-sm:12px;
+  --radius-pill:999px;
+  --shadow:0 10px 30px rgba(46,29,20,0.08);
+  --shadow-lg:0 20px 50px rgba(46,29,20,0.16);
+  --maxw:1180px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--cream);color:var(--dark);font-family:var(--font-body);-webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:var(--font-display);color:var(--dark);margin:0;line-height:1.12;letter-spacing:-0.01em;}
+p{margin:0;line-height:1.6;}
+a{color:inherit;text-decoration:none;}
+button{font-family:var(--font-body);cursor:pointer;}
+ul{margin:0;padding:0;list-style:none;}
+img,svg{display:block;}
+:focus-visible{outline:2px solid var(--orange-2);outline-offset:2px;}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+@media(max-width:640px){.wrap{padding:0 18px;}}
+
+/* ============ BUTTONS ============ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:var(--radius-pill);padding:13px 24px;font-weight:700;font-size:15px;font-family:var(--font-display);transition:transform .15s ease, box-shadow .15s ease, background .15s ease;white-space:nowrap;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--orange);color:var(--white);box-shadow:0 6px 16px rgba(224,109,59,.35);}
+.btn-primary:hover{background:var(--orange-2);}
+.btn-dark{background:var(--dark);color:var(--cream);}
+.btn-dark:hover{background:var(--dark-2);}
+.btn-outline{background:transparent;color:var(--dark);border:1.5px solid var(--taupe);}
+.btn-outline:hover{border-color:var(--dark);}
+.btn-ghost{background:transparent;color:var(--dark);padding:10px 14px;}
+.btn-ghost:hover{background:var(--taupe-tint);}
+.btn-sm{padding:9px 16px;font-size:13px;}
+.btn-danger{background:var(--dark);color:var(--orange-tint);}
+.btn-block{width:100%;}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--taupe-tint);background:var(--white);display:inline-flex;align-items:center;justify-content:center;color:var(--dark);transition:.15s;}
+.icon-btn:hover{border-color:var(--orange);color:var(--orange);}
+.icon-btn.active{background:var(--orange);color:var(--white);border-color:var(--orange);}
+
+/* ============ LOGO ============ */
+.logo{display:inline-flex;align-items:center;gap:10px;cursor:pointer;}
+.logo .wordmark{font-family:var(--font-display);font-weight:800;font-size:20px;letter-spacing:-.01em;}
+.logo .wordmark .me{color:var(--orange);}
+.logo-full{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.logo-full .tagline{font-size:11px;letter-spacing:.08em;color:var(--taupe);font-weight:600;}
+
+/* ============ NAVBAR ============ */
+.navbar{position:sticky;top:0;z-index:40;background:rgba(250,246,239,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--taupe-tint);}
+.navbar-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;max-width:var(--maxw);margin:0 auto;}
+.nav-links{display:flex;align-items:center;gap:6px;}
+.nav-link{padding:10px 16px;border-radius:var(--radius-pill);font-weight:600;font-size:14.5px;color:var(--dark-2);transition:.15s;}
+.nav-link:hover{background:var(--taupe-tint);}
+.nav-link.active{background:var(--dark);color:var(--cream);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-burger{display:none;background:none;border:none;color:var(--dark);}
+.mobile-menu{display:none;flex-direction:column;gap:4px;padding:12px 18px 20px;border-top:1px solid var(--taupe-tint);}
+.mobile-menu.open{display:flex;}
+@media(max-width:900px){.nav-links{display:none;}.nav-burger{display:flex;}}
+
+.user-chip{display:flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border-radius:var(--radius-pill);background:var(--white);border:1px solid var(--taupe-tint);position:relative;}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--orange);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;font-family:var(--font-display);}
+.chip-name{font-size:13.5px;font-weight:700;}
+.chip-role{font-size:11px;color:var(--taupe);text-transform:capitalize;}
+.dropdown{position:absolute;top:calc(100% + 10px);right:0;background:var(--white);border:1px solid var(--taupe-tint);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);min-width:200px;padding:8px;display:none;z-index:50;}
+.dropdown.open{display:block;}
+.dropdown-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:14px;font-weight:600;color:var(--dark-2);}
+.dropdown-item:hover{background:var(--taupe-tint);}
+.notif-badge{position:absolute;top:-3px;right:-3px;width:16px;height:16px;border-radius:50%;background:var(--orange);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--cream);}
+
+/* ============ LAYOUT: sidebar app shell ============ */
+.app-shell{display:flex;min-height:calc(100vh - 73px);}
+.sidebar{width:250px;flex-shrink:0;background:var(--white);border-right:1px solid var(--taupe-tint);padding:24px 16px;position:sticky;top:73px;height:calc(100vh - 73px);overflow-y:auto;}
+.sidebar-section{margin-bottom:22px;}
+.sidebar-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--taupe);font-weight:700;padding:0 12px;margin-bottom:8px;}
+.side-link{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:var(--radius-sm);font-weight:600;font-size:14.5px;color:var(--dark-2);margin-bottom:2px;transition:.15s;}
+.side-link:hover{background:var(--cream-2);}
+.side-link.active{background:var(--dark);color:var(--cream);}
+.side-link .ic{flex-shrink:0;}
+.main-content{flex:1;padding:32px;min-width:0;}
+.mobile-sidebar-toggle{display:none;}
+@media(max-width:860px){
+  .sidebar{position:fixed;left:-270px;top:0;height:100vh;z-index:60;transition:left .2s ease;box-shadow:var(--shadow-lg);}
+  .sidebar.open{left:0;}
+  .main-content{padding:20px;}
+  .mobile-sidebar-toggle{display:inline-flex;}
+  .sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(46,29,20,.4);z-index:55;}
+  .sidebar-backdrop.open{display:block;}
+}
+
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap;}
+.page-head h1{font-size:28px;}
+.page-sub{color:var(--taupe);font-size:14.5px;margin-top:6px;}
+.breadcrumb{font-size:13px;color:var(--taupe);margin-bottom:10px;font-weight:600;}
+.breadcrumb b{color:var(--dark);}
+
+/* ============ CARDS ============ */
+.card{background:var(--white);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+@media(max-width:900px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:var(--white);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);}
+.stat-num{font-family:var(--font-display);font-size:30px;font-weight:800;color:var(--dark);}
+.stat-label{font-size:13px;color:var(--taupe);font-weight:600;margin-top:4px;}
+.stat-card.accent{background:var(--dark);}
+.stat-card.accent .stat-num,.stat-card.accent .stat-label{color:var(--cream);}
+.stat-card.accent .stat-label{color:var(--taupe-tint);}
+
+/* ============ PET CARDS ============ */
+.pet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+@media(max-width:980px){.pet-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:620px){.pet-grid{grid-template-columns:1fr;}}
+.pet-card{background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:transform .18s ease, box-shadow .18s ease;cursor:pointer;position:relative;}
+.pet-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);}
+.pet-photo{height:190px;position:relative;overflow:hidden;}
+.pet-fav{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;border:none;color:var(--dark);z-index:2;}
+.pet-fav.on{color:var(--orange);}
+.pet-body{padding:16px 18px 18px;}
+.pet-name{font-family:var(--font-display);font-weight:800;font-size:17px;}
+.pet-meta{font-size:13px;color:var(--taupe);margin-top:3px;}
+.pet-tags{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;}
+.tag{font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:var(--radius-pill);background:var(--cream-2);color:var(--dark-2);}
+
+/* ============ BADGES ============ */
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;padding:5px 11px;border-radius:var(--radius-pill);text-transform:none;}
+.badge-disponible{background:var(--orange-tint);color:var(--orange-2);}
+.badge-proceso{background:var(--taupe-tint);color:var(--dark-2);}
+.badge-adoptado{background:var(--dark);color:var(--cream);}
+.badge-pausado{background:var(--taupe-tint);color:var(--taupe);}
+.badge-borrador{background:transparent;border:1.5px dashed var(--taupe);color:var(--taupe);}
+.badge-pendiente{background:var(--taupe-tint);color:var(--dark-2);}
+.badge-aprobada{background:var(--orange-tint);color:var(--orange-2);}
+.badge-rechazada{background:var(--dark);color:var(--orange-tint);}
+.badge-activo{background:var(--orange-tint);color:var(--orange-2);}
+.badge-inactivo{background:var(--taupe-tint);color:var(--taupe);}
+
+/* ============ FORMS ============ */
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:13.5px;font-weight:700;margin-bottom:7px;color:var(--dark-2);}
+.field .hint{font-size:12px;color:var(--taupe);margin-top:6px;}
+.field .err{font-size:12px;color:var(--orange-2);margin-top:6px;font-weight:600;display:none;}
+.field.invalid input,.field.invalid select,.field.invalid textarea{border-color:var(--orange-2);}
+.field.invalid .err{display:block;}
+input[type=text],input[type=email],input[type=password],input[type=tel],input[type=number],input[type=date],select,textarea{
+  width:100%;padding:13px 15px;border-radius:var(--radius-sm);border:1.5px solid var(--taupe-tint);background:var(--white);font-family:var(--font-body);font-size:14.5px;color:var(--dark);transition:.15s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--orange);}
+textarea{resize:vertical;min-height:90px;}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:560px){.row-2{grid-template-columns:1fr;}}
+.checkbox-row{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--dark-2);margin-bottom:12px;line-height:1.5;}
+.checkbox-row input{margin-top:3px;accent-color:var(--orange);width:16px;height:16px;flex-shrink:0;}
+.pw-wrap{position:relative;}
+.pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--taupe);font-size:12px;font-weight:700;}
+.seg-tabs{display:flex;background:var(--cream-2);border-radius:var(--radius-pill);padding:4px;margin-bottom:26px;}
+.seg-tab{flex:1;text-align:center;padding:10px;border:none;background:none;border-radius:var(--radius-pill);font-weight:700;font-size:14px;color:var(--taupe);}
+.seg-tab.active{background:var(--dark);color:var(--cream);}
+
+/* ============ MODAL ============ */
+.modal-overlay{position:fixed;inset:0;background:rgba(46,29,20,.45);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.modal-overlay.open{display:flex;animation:fadeIn .15s ease;}
+.modal-box{background:var(--white);border-radius:var(--radius);max-width:460px;width:100%;padding:28px;box-shadow:var(--shadow-lg);animation:popIn .18s ease;}
+.modal-box h3{font-size:19px;margin-bottom:10px;}
+.modal-box p{color:var(--taupe);font-size:14.5px;margin-bottom:22px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+
+/* ============ TOAST ============ */
+#toast-root{position:fixed;bottom:24px;right:24px;z-index:300;display:flex;flex-direction:column;gap:10px;}
+.toast{background:var(--dark);color:var(--cream);padding:14px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;animation:slideUp .2s ease;max-width:320px;}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ============ TABLE ============ */
+.table-wrap{overflow-x:auto;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);}
+table{width:100%;border-collapse:collapse;min-width:640px;}
+th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--taupe);padding:16px 18px;border-bottom:1px solid var(--taupe-tint);font-weight:700;}
+td{padding:16px 18px;border-bottom:1px solid var(--cream-2);font-size:14px;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+.row-actions{display:flex;gap:8px;}
+.table-empty{padding:60px 20px;text-align:center;color:var(--taupe);}
+
+/* ============ FILTER BAR ============ */
+.filter-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:24px;background:var(--white);padding:16px;border-radius:var(--radius);box-shadow:var(--shadow);}
+.filter-bar select,.filter-bar input{width:auto;min-width:150px;padding:10px 14px;font-size:13.5px;}
+.pill-filters{display:flex;gap:8px;flex-wrap:wrap;}
+.pill-f{padding:9px 16px;border-radius:var(--radius-pill);border:1.5px solid var(--taupe-tint);font-size:13.5px;font-weight:700;color:var(--dark-2);background:var(--white);}
+.pill-f.active{background:var(--orange);border-color:var(--orange);color:#fff;}
+
+/* ============ LANDING ============ */
+.hero{padding:64px 0 40px;}
+.hero-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;}}
+.eyebrow-pill{display:inline-flex;align-items:center;gap:8px;background:var(--orange-tint);color:var(--orange-2);font-weight:700;font-size:13px;padding:8px 16px;border-radius:var(--radius-pill);margin-bottom:20px;}
+.hero h1{font-size:52px;margin-bottom:18px;}
+@media(max-width:600px){.hero h1{font-size:34px;}}
+.hero p.lead{font-size:17px;color:var(--dark-2);max-width:480px;margin-bottom:28px;}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+.hero-stats{display:flex;gap:32px;margin-top:40px;}
+.hero-stats div b{display:block;font-family:var(--font-display);font-size:26px;font-weight:800;}
+.hero-stats div span{font-size:12.5px;color:var(--taupe);}
+.hero-visual{position:relative;height:420px;}
+.float-card{position:absolute;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:14px;}
+.blob{position:absolute;border-radius:50%;background:var(--orange);opacity:.15;}
+
+.section{padding:60px 0;}
+.section-head{max-width:560px;margin-bottom:36px;}
+.section-head h2{font-size:32px;margin-bottom:12px;}
+.section-head p{color:var(--taupe);font-size:15px;}
+.split-2{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+@media(max-width:800px){.split-2{grid-template-columns:1fr;}}
+.pp-card{background:var(--white);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);}
+.pp-card h3{font-size:18px;margin-bottom:12px;}
+.pp-card p{color:var(--taupe);font-size:14.5px;}
+.steps-row{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+@media(max-width:900px){.steps-row{grid-template-columns:repeat(2,1fr);}}
+.step-num{width:42px;height:42px;border-radius:50%;background:var(--dark);color:var(--cream);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;margin-bottom:14px;}
+.cta-band{background:var(--dark);border-radius:28px;padding:56px 40px;text-align:center;}
+.cta-band h2{color:var(--cream);font-size:30px;margin-bottom:14px;}
+.cta-band p{color:var(--taupe-tint);margin-bottom:26px;}
+.footer{padding:40px 0;border-top:1px solid var(--taupe-tint);margin-top:20px;}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+.footer-links{display:flex;gap:22px;font-size:13.5px;color:var(--taupe);font-weight:600;}
+
+/* ============ AUTH ============ */
+.auth-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;background:radial-gradient(circle at 20% 20%, var(--orange-tint), transparent 45%), var(--cream);}
+.auth-card{background:var(--white);border-radius:28px;box-shadow:var(--shadow-lg);max-width:460px;width:100%;padding:38px;}
+.auth-back{font-size:13.5px;color:var(--taupe);font-weight:700;margin-bottom:18px;display:inline-block;}
+.auth-card h1{font-size:24px;text-align:center;margin-bottom:4px;}
+.auth-sub{text-align:center;color:var(--taupe);font-size:13.5px;margin-bottom:26px;}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--taupe);font-size:12.5px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--taupe-tint);}
+.foot-link{text-align:center;font-size:13.5px;color:var(--taupe);margin-top:18px;}
+.demo-box{background:var(--cream-2);border-radius:var(--radius-sm);padding:14px;margin-bottom:22px;font-size:12.5px;color:var(--dark-2);}
+.demo-box b{display:block;margin-bottom:6px;}
+.demo-role-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+
+/* ============ DETAIL PAGE ============ */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:36px;}
+@media(max-width:860px){.detail-grid{grid-template-columns:1fr;}}
+.detail-photo{height:380px;border-radius:var(--radius);overflow:hidden;position:relative;}
+.info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:20px 0;}
+.info-item{background:var(--cream-2);border-radius:var(--radius-sm);padding:14px;}
+.info-item .k{font-size:11.5px;color:var(--taupe);font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.info-item .v{font-size:15px;font-weight:700;margin-top:4px;}
+.compat-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.compat-pill{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;padding:8px 14px;border-radius:var(--radius-pill);}
+.compat-yes{background:var(--orange-tint);color:var(--orange-2);}
+.compat-no{background:var(--taupe-tint);color:var(--taupe);}
+
+/* ============ TRACKING (stepper) ============ */
+.track-steps{display:flex;justify-content:space-between;position:relative;margin:30px 0 10px;}
+.track-steps::before{content:'';position:absolute;top:17px;left:0;right:0;height:2px;background:var(--taupe-tint);z-index:0;}
+.track-step{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;text-align:center;}
+.track-dot{width:36px;height:36px;border-radius:50%;background:var(--taupe-tint);color:var(--taupe);display:flex;align-items:center;justify-content:center;font-weight:800;border:4px solid var(--cream);}
+.track-dot.done{background:var(--orange);color:#fff;}
+.track-dot.rejected{background:var(--dark);color:var(--orange-tint);}
+.track-step span{font-size:12.5px;font-weight:700;color:var(--taupe);max-width:90px;}
+.track-step.done span{color:var(--dark);}
+
+/* ============ EMPTY STATE ============ */
+.empty{text-align:center;padding:70px 20px;}
+.empty .ic{font-size:52px;margin-bottom:16px;}
+.empty h3{margin-bottom:8px;}
+.empty p{color:var(--taupe);font-size:14.5px;margin-bottom:22px;}
+
+/* ============ MISC ============ */
+.avatar-lg{width:64px;height:64px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;font-family:var(--font-display);}
+.dashed-drop{border:2px dashed var(--taupe-tint);border-radius:var(--radius-sm);padding:30px;text-align:center;color:var(--taupe);font-size:13.5px;}
+.tab-strip{display:flex;gap:4px;border-bottom:1px solid var(--taupe-tint);margin-bottom:24px;}
+.tab-item{padding:12px 18px;font-weight:700;font-size:14px;color:var(--taupe);border-bottom:2px solid transparent;margin-bottom:-1px;}
+.tab-item.active{color:var(--dark);border-color:var(--orange);}
+.notif-item{display:flex;gap:14px;padding:16px;border-radius:var(--radius-sm);}
+.notif-item.unread{background:var(--orange-tint);}
+.notif-ic{width:40px;height:40px;border-radius:50%;background:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
+.two-col-panel{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:760px){.two-col-panel{grid-template-columns:1fr;}}
+.section-title-sm{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--taupe);font-weight:700;margin-bottom:14px;}
+.list-line{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--cream-2);font-size:14px;}
+.list-line:last-child{border-bottom:none;}
+.progress-track{height:8px;background:var(--taupe-tint);border-radius:99px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--orange);border-radius:99px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<script>
+/* =========================================================
+   ADOPT ME — PROTOTIPO INTERACTIVO
+   Datos en memoria + hash-router. Sin backend real.
+========================================================= */
+
+/* ---------- ICONOS (SVG inline, stroke=currentColor) ---------- */
+const ic = {
+  paw:`<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="7" r="3"/><circle cx="12" cy="4.5" r="2.6"/><circle cx="17" cy="7" r="3"/><path d="M12 12c-4 0-7 2.7-7 6.2C5 20.8 7 22 9 20.8c1-.6 2-1 3-1s2 .4 3 1c2 1.2 4 0 4-2.6 0-3.5-3-6.2-7-6.2z"/></svg>`,
+  home:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>`,
+  search:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>`,
+  heart:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.6-9.5-9C.7 8.6 2.3 5 6 5c2 0 3.4 1 4.5 2.4.6.8 1.5.8 2 0C13.6 6 15 5 17 5c3.7 0 5.3 3.6 3.5 7-2.5 4.4-9.5 9-9.5 9z"/></svg>`,
+  heartFill:`<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.6-9.5-9C.7 8.6 2.3 5 6 5c2 0 3.4 1 4.5 2.4.6.8 1.5.8 2 0C13.6 6 15 5 17 5c3.7 0 5.3 3.6 3.5 7-2.5 4.4-9.5 9-9.5 9z"/></svg>`,
+  file:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>`,
+  user:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>`,
+  bell:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>`,
+  chart:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>`,
+  logout:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>`,
+  edit:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>`,
+  trash:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>`,
+  check:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>`,
+  x:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg>`,
+  plus:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>`,
+  building:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18"/><path d="M9 21v-4h6v4"/><path d="M9 7h.01M15 7h.01M9 11h.01M15 11h.01"/></svg>`,
+  mail:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 6l10 7 10-7"/></svg>`,
+  arrowR:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`,
+  download:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>`,
+  menu:`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>`,
+  eye:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  msg:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  shield:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></svg>`,
+  warn:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3L2 20h20L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>`,
+  lock:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>`,
+  wave:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12a4 4 0 0 1 8 0v3a4 4 0 0 1-8 0z"/><path d="M12 3v6"/></svg>`,
+  pause:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 5v14M15 5v14"/></svg>`
+};
+/* Iconos usados en toasts / notificaciones (reemplazan emojis por SVG de marca) */
+const TOAST_ICONS = { success:ic.check, warn:ic.warn, love:ic.heartFill, unlove:ic.heart, lock:ic.lock, delete:ic.trash, edit:ic.edit, mail:ic.mail, download:ic.download, wave:ic.wave, pause:ic.pause };
+const NOTIF_ICONS = { mail:ic.mail, warn:ic.x, req:ic.file, home:ic.building };
+
+/* ---------- ILUSTRACIONES DE MASCOTAS (vector propio, sin emojis/fotos externas) ---------- */
+/* Paleta fija (coincide con los tokens CSS) para que las ilustraciones vivan dentro de la identidad visual */
+const PAL = {cream:'#FAF6EF',cream2:'#F1EAE0',dark:'#2E1D14',dark2:'#3D281C',orange:'#E06D3B',orange2:'#C85A2C',orangeTint:'#FBE4D8',taupe:'#8C827A',taupeTint:'#EAE6E1',white:'#FFFFFF'};
+
+function faceGroup(o){
+  // o: {earsBack, muzzlePatch, feature, blush}
+  const feature = o.feature || PAL.dark;
+  return `
+    <ellipse cx="100" cy="150" rx="34" ry="7" fill="${PAL.dark}" opacity=".07"/>
+    ${o.earsBack||''}
+    <circle cx="100" cy="106" r="${o.headR||56}" fill="${o.face}"/>
+    ${o.muzzlePatch!==false?`<ellipse cx="100" cy="${o.headR>58?134:128}" rx="24" ry="16" fill="${o.muzzle||PAL.cream}"/>`:''}
+    ${o.earsFront||''}
+    ${o.blush?`<circle cx="70" cy="118" r="8" fill="${PAL.orangeTint}" opacity=".8"/><circle cx="130" cy="118" r="8" fill="${PAL.orangeTint}" opacity=".8"/>`:''}
+    <circle cx="84" cy="${o.eyeY||100}" r="${o.eyeR||5.5}" fill="${feature}"/>
+    <circle cx="116" cy="${o.eyeY||100}" r="${o.eyeR||5.5}" fill="${feature}"/>
+    <circle cx="86" cy="${(o.eyeY||100)-2}" r="1.6" fill="${PAL.white}"/>
+    <circle cx="118" cy="${(o.eyeY||100)-2}" r="1.6" fill="${PAL.white}"/>
+    <ellipse cx="100" cy="${o.noseY||122}" rx="5.5" ry="4" fill="${feature}"/>
+    <path d="M92 ${(o.noseY||122)+9} Q100 ${(o.noseY||122)+15} 108 ${(o.noseY||122)+9}" stroke="${feature}" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    ${o.whiskers?`
+    <g stroke="${feature}" stroke-width="1.4" opacity=".55" stroke-linecap="round">
+      <path d="M62 118 H40"/><path d="M63 124 H42"/><path d="M63 130 H44"/>
+      <path d="M138 118 H160"/><path d="M137 124 H158"/><path d="M137 130 H156"/>
+    </g>`:''}
+    ${o.collar?`<rect x="68" y="${o.headR>58?150:146}" width="64" height="11" rx="5.5" fill="${o.accent}"/><circle cx="100" cy="${(o.headR>58?156:152)}" r="5" fill="${PAL.cream}"/>`:''}
+  `;
+}
+const ILLUS = {
+  dogFloppy(o){
+    const earsBack = `<ellipse cx="52" cy="98" rx="22" ry="36" fill="${o.ear}" transform="rotate(-18 52 98)"/><ellipse cx="148" cy="98" rx="22" ry="36" fill="${o.ear}" transform="rotate(18 148 98)"/>`;
+    return faceGroup({face:o.face,ear:o.ear,accent:o.accent,earsBack,collar:true,feature:o.feature});
+  },
+  dogAlert(o){
+    const earsBack = `<path d="M58 70 L38 24 L74 60 Z" fill="${o.ear}"/><path d="M142 70 L162 24 L126 60 Z" fill="${o.ear}"/>`;
+    return faceGroup({face:o.face,ear:o.ear,accent:o.accent,earsBack,collar:true,feature:o.feature});
+  },
+  dogPuppy(o){
+    const earsBack = `<ellipse cx="58" cy="92" rx="17" ry="26" fill="${o.ear}" transform="rotate(-12 58 92)"/><ellipse cx="142" cy="92" rx="17" ry="26" fill="${o.ear}" transform="rotate(12 142 92)"/>`;
+    return faceGroup({face:o.face,ear:o.ear,accent:o.accent,earsBack,headR:60,eyeR:7,eyeY:102,blush:true,collar:true,feature:o.feature});
+  },
+  dogCurly(o){
+    const bumps=[[46,66],[40,96],[48,126],[62,146],[138,146],[152,126],[160,96],[154,66],[70,44],[130,44],[100,36]]
+      .map(([x,y])=>`<circle cx="${x}" cy="${y}" r="11" fill="${o.ear}"/>`).join('');
+    const earsBack = `<ellipse cx="54" cy="102" rx="18" ry="30" fill="${o.ear}" transform="rotate(-16 54 102)"/><ellipse cx="146" cy="102" rx="18" ry="30" fill="${o.ear}" transform="rotate(16 146 102)"/>${bumps}`;
+    return faceGroup({face:o.face,ear:o.ear,accent:o.accent,earsBack,collar:true,feature:o.feature});
+  },
+  cat(o){
+    const earsBack = `<path d="M55 70 L44 26 L82 58 Z" fill="${o.ear}"/><path d="M145 70 L156 26 L118 58 Z" fill="${o.ear}"/>`;
+    const earsFront = o.pointed ? `<path d="M58 66 L50 34 L76 58 Z" fill="${o.pointColor}"/><path d="M142 66 L150 34 L124 58 Z" fill="${o.pointColor}"/>` : '';
+    const muzzleMask = o.pointed ? `<ellipse cx="100" cy="128" rx="26" ry="18" fill="${o.pointColor}" opacity=".9"/>` : '';
+    return `${faceGroup({face:o.face,ear:o.ear,accent:o.accent,earsBack,earsFront:earsFront+muzzleMask,muzzlePatch:!o.pointed,whiskers:true,collar:true,feature:o.feature})}`;
+  },
+  rabbit(o){
+    const earsBack = `
+      <ellipse cx="82" cy="34" rx="13" ry="44" fill="${o.ear}" transform="rotate(-8 82 34)"/>
+      <ellipse cx="118" cy="34" rx="13" ry="44" fill="${o.ear}" transform="rotate(8 118 34)"/>
+      <ellipse cx="82" cy="34" rx="6" ry="34" fill="${PAL.cream}" opacity=".55" transform="rotate(-8 82 34)"/>
+      <ellipse cx="118" cy="34" rx="6" ry="34" fill="${PAL.cream}" opacity=".55" transform="rotate(8 118 34)"/>`;
+    return faceGroup({face:o.face,ear:o.ear,accent:o.accent,earsBack,headR:52,eyeY:104,whiskers:true,collar:true,feature:o.feature});
+  }
+};
+function petArt(pet){
+  const o = pet.art;
+  const character = ILLUS[o.variant](o);
+  return `<svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%;display:block" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="200" fill="${o.bg}"/>
+    <g opacity=".08" fill="${o.accent}" transform="translate(150 30) scale(1.1) rotate(18)">
+      <ellipse cx="0" cy="0" rx="5" ry="7"/><ellipse cx="10" cy="-6" rx="5.4" ry="7"/><ellipse cx="20" cy="0" rx="5" ry="7"/>
+      <path d="M10 8c-8 0-13 5-13 11 0 4.6 3.5 7 7 4.6 1.8-1.2 3.6-1.8 6-1.8s4.2.6 6 1.8c3.5 2.4 7 0 7-4.6 0-6-5-11-13-11z"/>
+    </g>
+    <g transform="translate(0 -6)">${character}</g>
+  </svg>`;
+}
+function petThumb(pet, size, radius){
+  if(!pet) return `<div style="width:${size}px;height:${size}px;border-radius:${radius||'10px'};background:${PAL.cream2};flex-shrink:0"></div>`;
+  return `<div style="width:${size}px;height:${size}px;border-radius:${radius||'10px'};overflow:hidden;flex-shrink:0;display:inline-block;vertical-align:middle">${petArt(pet)}</div>`;
+}
+function defaultArtFor(especie){
+  if(especie==='Gato') return {variant:'cat',face:PAL.taupeTint,ear:PAL.dark,accent:PAL.orange,bg:PAL.cream2,feature:PAL.dark};
+  if(especie==='Conejo') return {variant:'rabbit',face:PAL.cream2,ear:PAL.taupeTint,accent:PAL.orange2,bg:PAL.taupeTint,feature:PAL.dark};
+  return {variant:'dogFloppy',face:PAL.cream2,ear:PAL.orange2,accent:PAL.orange,bg:PAL.orangeTint,feature:PAL.dark};
+}
+
+/* ---------- LOGO ---------- */
+function pawSVG(size, bg, paw, heart){
+  return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="flex-shrink:0">
+    <rect width="100" height="100" rx="24" fill="${bg}"/>
+    <g fill="${paw}">
+      <ellipse cx="34" cy="34" rx="9" ry="12"/>
+      <ellipse cx="50" cy="24" rx="9.5" ry="12.5"/>
+      <ellipse cx="66" cy="34" rx="9" ry="12"/>
+      <path d="M50 42c-13 0-22 9-22 19 0 8 6 12 12 8 3-2 6-3 10-3s7 1 10 3c6 4 12 0 12-8 0-10-9-19-22-19z"/>
+    </g>
+    <path d="M50 58l-1.6-1.5c-4-3.6-6.6-6-6.6-9 0-2.4 1.9-4.3 4.3-4.3 1.4 0 2.7.6 3.9 1.9 1.2-1.3 2.5-1.9 3.9-1.9 2.4 0 4.3 1.9 4.3 4.3 0 3-2.6 5.4-6.6 9z" fill="${bg}"/>
+  </svg>`;
+}
+function Logo(opts){
+  opts = opts||{};
+  const size = opts.size||36;
+  return `<a href="#/" class="logo" aria-label="ADOPT ME — Inicio">
+    ${pawSVG(size,'var(--orange)','#fff')}
+    <span class="wordmark">ADOPT<span class="me">ME</span></span>
+  </a>`;
+}
+
+/* =========================================================
+   ESTADO / DATOS SIMULADOS
+========================================================= */
+const state = {
+  route: '#/',
+  user: null, // {id,nombre,rol:'usuario'|'refugio'|'admin',email,refugioId}
+  favoritos: [2,5],
+  mobileNavOpen:false,
+  sidebarOpen:false,
+  userDropdownOpen:false,
+  catalogFilters:{especie:'',tamano:'',edad:'',q:''},
+  pendingRequestPetId:null,
+};
+
+let PETS = [
+  {id:1,nombre:'Luna',especie:'Perro',raza:'Labrador mestizo',edad:'2 años',tamano:'Mediano',sexo:'Hembra',refugioId:1,estado:'disponible',pub:'publicado',
+   art:{variant:'dogFloppy',face:PAL.cream2,ear:PAL.orange2,accent:PAL.orange,bg:PAL.orangeTint,feature:PAL.dark},
+   desc:'Luna es una perrita juguetona y muy cariñosa. Le encanta correr en el parque y aprende comandos nuevos con facilidad. Busca una familia activa que le dé mucho amor.',
+   vacunado:true,esterilizado:true,salud:'Excelente',ninos:true,perros:true,gatos:false},
+  {id:2,nombre:'Simón',especie:'Gato',raza:'Común europeo',edad:'1 año',tamano:'Pequeño',sexo:'Macho',refugioId:2,estado:'disponible',pub:'publicado',
+   art:{variant:'cat',face:PAL.taupeTint,ear:PAL.dark,accent:PAL.taupe,bg:PAL.cream2,feature:PAL.dark},
+   desc:'Simón es tranquilo, curioso y le fascina dormir al sol. Ideal para apartamentos. Es independiente pero disfruta de mimos por las noches.',
+   vacunado:true,esterilizado:true,salud:'Excelente',ninos:true,perros:false,gatos:true},
+  {id:3,nombre:'Rocky',especie:'Perro',raza:'Criollo',edad:'4 años',tamano:'Grande',sexo:'Macho',refugioId:1,estado:'en proceso',pub:'publicado',
+   art:{variant:'dogAlert',face:PAL.taupeTint,ear:PAL.dark,accent:PAL.dark2,bg:PAL.taupeTint,feature:PAL.dark},
+   desc:'Rocky es un perro leal y protector, perfecto como compañero de casa. Ya tiene una solicitud en revisión.',
+   vacunado:true,esterilizado:false,salud:'Buena',ninos:true,perros:true,gatos:false},
+  {id:4,nombre:'Michi',especie:'Gato',raza:'Siamés',edad:'3 años',tamano:'Pequeño',sexo:'Hembra',refugioId:2,estado:'disponible',pub:'publicado',
+   art:{variant:'cat',face:PAL.cream2,ear:PAL.dark,accent:PAL.orange,bg:PAL.orangeTint,feature:PAL.dark,pointed:true,pointColor:PAL.dark2},
+   desc:'Michi es elegante y vocal, siempre tiene algo que \'decir\'. Se lleva bien con otros gatos y necesita atención diaria.',
+   vacunado:true,esterilizado:true,salud:'Excelente',ninos:false,perros:false,gatos:true},
+  {id:5,nombre:'Toby',especie:'Perro',raza:'Beagle',edad:'6 meses',tamano:'Mediano',sexo:'Macho',refugioId:3,estado:'disponible',pub:'publicado',
+   art:{variant:'dogPuppy',face:PAL.orangeTint,ear:PAL.orange,accent:PAL.dark,bg:PAL.cream2,feature:PAL.dark},
+   desc:'Toby es un cachorro lleno de energía. Necesita paciencia para su entrenamiento y espacio para jugar.',
+   vacunado:true,esterilizado:false,salud:'Excelente',ninos:true,perros:true,gatos:true},
+  {id:6,nombre:'Nina',especie:'Conejo',raza:'Enano',edad:'1 año',tamano:'Pequeño',sexo:'Hembra',refugioId:3,estado:'disponible',pub:'publicado',
+   art:{variant:'rabbit',face:PAL.cream2,ear:PAL.taupeTint,accent:PAL.orange2,bg:PAL.taupeTint,feature:PAL.dark},
+   desc:'Nina es dulce y silenciosa, perfecta para espacios pequeños. Necesita una jaula amplia y vegetales frescos a diario.',
+   vacunado:true,esterilizado:true,salud:'Buena',ninos:true,perros:false,gatos:false},
+  {id:7,nombre:'Max',especie:'Perro',raza:'Pastor mestizo',edad:'3 años',tamano:'Grande',sexo:'Macho',refugioId:1,estado:'adoptado',pub:'publicado',
+   art:{variant:'dogFloppy',face:PAL.taupeTint,ear:PAL.dark2,accent:PAL.taupe,bg:PAL.cream2,feature:PAL.dark},
+   desc:'Max ya encontró su hogar para siempre.',vacunado:true,esterilizado:true,salud:'Excelente',ninos:true,perros:true,gatos:false},
+  {id:8,nombre:'Coco',especie:'Gato',raza:'Naranja',edad:'2 años',tamano:'Mediano',sexo:'Macho',refugioId:2,estado:'pausado',pub:'publicado',
+   art:{variant:'cat',face:PAL.orange2,ear:PAL.dark,accent:PAL.dark,bg:PAL.taupeTint,feature:PAL.cream},
+   desc:'Coco está en pausa temporal mientras finaliza su tratamiento veterinario.',vacunado:true,esterilizado:true,salud:'En tratamiento',ninos:true,perros:false,gatos:true},
+  {id:9,nombre:'Bella',especie:'Perro',raza:'Poodle mestizo',edad:'5 años',tamano:'Pequeño',sexo:'Hembra',refugioId:3,estado:'disponible',pub:'borrador',
+   art:{variant:'dogCurly',face:PAL.cream2,ear:PAL.orange2,accent:PAL.orange,bg:PAL.orangeTint,feature:PAL.dark},
+   desc:'Bella es tranquila y hogareña. Aún en borrador, pendiente de publicar.',vacunado:true,esterilizado:true,salud:'Buena',ninos:true,perros:true,gatos:true},
+];
+
+let REFUGIOS = [
+  {id:1,nombre:'Huellas Felices',ciudad:'Medellín',tipo:'Fundación',anio:2015,contacto:'Camila Restrepo',cargo:'Coordinadora',correoContacto:'camila@huellasfelices.org',telefono:'(300) 123 4567',estado:'activo'},
+  {id:2,nombre:'Refugio Patitas',ciudad:'Bogotá',tipo:'Albergue',anio:2018,contacto:'Jorge Salas',cargo:'Director',correoContacto:'jorge@patitas.org',telefono:'(310) 987 6543',estado:'activo'},
+  {id:3,nombre:'Amigos Peludos',ciudad:'Cali',tipo:'Rescatista independiente',anio:2020,contacto:'Ana Ríos',cargo:'Fundadora',correoContacto:'ana@amigospeludos.org',telefono:'(320) 456 7890',estado:'activo'},
+];
+
+let USERS = [
+  {id:1,nombre:'María',apellido:'Gómez',email:'maria@ejemplo.com',telefono:'(300) 111 2233',estado:'activo',fecha:'2026-02-11'},
+  {id:2,nombre:'Carlos',apellido:'Pérez',email:'carlos@ejemplo.com',telefono:'(310) 222 3344',estado:'activo',fecha:'2026-03-02'},
+  {id:3,nombre:'Laura',apellido:'Torres',email:'laura@ejemplo.com',telefono:'(320) 333 4455',estado:'inactivo',fecha:'2026-04-19'},
+];
+
+let REQUESTS = [
+  {id:101,petId:1,userId:1,userNombre:'María Gómez',userEmail:'maria@ejemplo.com',refugioId:1,estado:'pendiente',fecha:'2026-08-01',
+   motivo:'Quiero darle un hogar lleno de amor a Luna, tengo experiencia con perros grandes.',vivienda:'Casa',patio:true,tamanoVivienda:'120 m²'},
+  {id:102,petId:3,userId:2,userNombre:'Carlos Pérez',userEmail:'carlos@ejemplo.com',refugioId:1,estado:'pendiente',fecha:'2026-08-03',
+   motivo:'Busco un compañero leal para acompañarme en mis rutinas diarias.',vivienda:'Apartamento',patio:false,tamanoVivienda:'70 m²'},
+  {id:103,petId:2,userId:3,userNombre:'Laura Torres',userEmail:'laura@ejemplo.com',refugioId:2,estado:'aprobada',fecha:'2026-07-20',
+   motivo:'Simón sería el compañero perfecto para mi apartamento tranquilo.',vivienda:'Apartamento',patio:false,tamanoVivienda:'55 m²'},
+  {id:104,petId:7,userId:1,userNombre:'María Gómez',userEmail:'maria@ejemplo.com',refugioId:1,estado:'rechazada',fecha:'2026-06-14',
+   motivo:'Me encantaría adoptar a Max.',vivienda:'Apartamento',patio:false,tamanoVivienda:'40 m²',motivoRechazo:'Espacio insuficiente para un perro de talla grande.'},
+];
+let reqSeq = 105;
+
+let NOTIFS = [
+  {id:1,role:'usuario',icKey:'mail',title:'Tu solicitud por Luna fue recibida',body:'El refugio Huellas Felices la está revisando.',read:false,fecha:'Hace 2 días'},
+  {id:2,role:'usuario',icKey:'warn',title:'Solicitud por Max rechazada',body:'Motivo: espacio insuficiente para un perro de talla grande.',read:true,fecha:'Hace 3 semanas'},
+  {id:3,role:'refugio',icKey:'req',title:'Nueva solicitud recibida',body:'María Gómez solicitó adoptar a Luna.',read:false,fecha:'Hace 2 días'},
+  {id:4,role:'refugio',icKey:'req',title:'Nueva solicitud recibida',body:'Carlos Pérez solicitó adoptar a Rocky.',read:false,fecha:'Hace 1 día'},
+  {id:5,role:'admin',icKey:'home',title:'Nuevo refugio registrado',body:'Amigos Peludos completó su registro institucional.',read:true,fecha:'Hace 1 semana'},
+];
+
+/* =========================================================
+   HELPERS
+========================================================= */
+function petById(id){return PETS.find(p=>p.id===Number(id));}
+function refugioById(id){return REFUGIOS.find(r=>r.id===Number(id));}
+function initials(name){return (name||'?').split(' ').map(s=>s[0]).slice(0,2).join('').toUpperCase();}
+function esc(s){return (s+'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function go(hash){ location.hash = hash; window.scrollTo(0,0); }
+
+/* ---------- Reglas de visibilidad y estado (una sola fuente de verdad) ---------- */
+// Clase CSS del badge según el estado de la mascota (antes estaba repetida en 3 vistas).
+function estadoBadgeClass(estado){
+  return {disponible:'badge-disponible','en proceso':'badge-proceso',adoptado:'badge-adoptado',pausado:'badge-pausado'}[estado] || 'badge-pausado';
+}
+function refugioActivo(id){ const r = refugioById(id); return !!r && r.estado==='activo'; }
+// ¿Aparece en el catálogo público? Debe estar publicada y su refugio no suspendido.
+function isPetListed(p){ return !!p && p.pub==='publicado' && refugioActivo(p.refugioId); }
+// ¿Puede ver la ficha de esta mascota la persona actual? Admin y refugio dueño ven también borradores y suspendidas.
+function canViewPet(p){
+  if(!p) return false;
+  const u = state.user;
+  if(u && u.rol==='admin') return true;
+  if(u && u.rol==='refugio' && u.refugioId===p.refugioId) return true;
+  return isPetListed(p);
+}
+function listedAvailablePets(){ return PETS.filter(p=>p.estado==='disponible' && isPetListed(p)); }
+// Solicitudes del usuario en sesión: se identifican por id, nunca por nombre.
+function myRequests(){ return state.user ? REQUESTS.filter(r=>r.userId===state.user.id) : []; }
+// Motivo por el que una cuenta no puede iniciar sesión (null si puede).
+function accountBlockReason(rol, id){
+  if(rol==='usuario'){
+    const u = USERS.find(x=>x.id===id);
+    if(u && u.estado!=='activo') return 'Tu cuenta está desactivada. Pide al administrador que la reactive.';
+  }
+  if(rol==='refugio' && !refugioActivo(id)) return 'Este refugio está suspendido. Contacta al administrador.';
+  return null;
+}
+
+function toast(msg, kind){
+  const root = document.getElementById('toast-root');
+  const el = document.createElement('div');
+  el.className='toast';
+  const iconSvg = TOAST_ICONS[kind] || ic.check;
+  el.innerHTML = `<span style="flex-shrink:0;display:flex">${iconSvg}</span><span>${esc(msg)}</span>`;
+  root.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .25s'; setTimeout(()=>el.remove(),250); }, 3200);
+}
+
+function openModal(html){
+  document.getElementById('modal-root').innerHTML = `<div class="modal-overlay open" id="active-modal">${html}</div>`;
+  document.getElementById('active-modal').addEventListener('click', e=>{ if(e.target.id==='active-modal') closeModal(); });
+}
+function closeModal(){ document.getElementById('modal-root').innerHTML=''; }
+
+function confirmModal({title, body, confirmLabel, danger, onConfirm}){
+  openModal(`
+    <div class="modal-box">
+      <h3>${esc(title)}</h3>
+      <p>${esc(body)}</p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+        <button class="btn ${danger?'btn-danger':'btn-primary'}" id="modal-confirm-btn">${esc(confirmLabel||'Confirmar')}</button>
+      </div>
+    </div>`);
+  document.getElementById('modal-confirm-btn').addEventListener('click', ()=>{ closeModal(); onConfirm && onConfirm(); });
+}
+
+function requireAuth(roles){
+  if(!state.user){ go('#/login'); return false; }
+  if(roles && !roles.includes(state.user.rol)){ go('#/404'); return false; }
+  return true;
+}
+
+function csvDownload(filename, rows){
+  const csv = rows.map(r=>r.map(c=>`"${(c+'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url);
+  toast('Archivo CSV exportado','download');
+}
+
+/* =========================================================
+   COMPONENTES COMPARTIDOS: NAVBAR / SIDEBAR
+========================================================= */
+function topNavbar(){
+  const p = location.hash.split('?')[0];
+  const isLogged = !!state.user;
+  const nUnread = isLogged ? NOTIFS.filter(n=>n.role===state.user.rol && !n.read).length : 0;
+
+  const navItem = (href,label)=>`<a class="nav-link ${p===href?'active':''}" href="${href}">${label}</a>`;
+  let links = '';
+  if(!isLogged){
+    links = navItem('#/','Inicio') + navItem('#/catalogo','Mascotas') + navItem('#/nosotros','Sobre nosotros');
+  } else if(state.user.rol==='usuario'){
+    links = navItem('#/dashboard','Panel') + navItem('#/catalogo','Mascotas') + navItem('#/favoritos','Favoritos') + navItem('#/seguimiento','Solicitudes');
+  } else if(state.user.rol==='refugio'){
+    links = navItem('#/refugio/dashboard','Panel') + navItem('#/refugio/mascotas','Mis mascotas') + navItem('#/refugio/solicitudes','Solicitudes');
+  } else if(state.user.rol==='admin'){
+    links = navItem('#/admin/dashboard','Panel') + navItem('#/admin/usuarios','Usuarios') + navItem('#/admin/refugios','Refugios') + navItem('#/admin/solicitudes','Solicitudes') + navItem('#/admin/reportes','Reportes');
+  }
+
+  const authArea = isLogged ? `
+    <button class="icon-btn" style="position:relative" onclick="go('#/notificaciones')" aria-label="Notificaciones">
+      ${ic.bell}${nUnread>0?`<span class="notif-badge">${nUnread}</span>`:''}
+    </button>
+    <div style="position:relative">
+      <button class="user-chip" onclick="toggleUserDropdown(event)">
+        <div class="avatar">${initials(state.user.nombre)}</div>
+        <div style="text-align:left"><div class="chip-name">${esc(state.user.nombre)}</div><div class="chip-role">${state.user.rol}</div></div>
+      </button>
+      <div class="dropdown ${state.userDropdownOpen?'open':''}" id="user-dropdown">
+        <a class="dropdown-item" href="${state.user.rol==='usuario'?'#/perfil':state.user.rol==='refugio'?'#/refugio/perfil':'#/admin/dashboard'}">${ic.user} Mi perfil</a>
+        <a class="dropdown-item" href="#/notificaciones">${ic.bell} Notificaciones</a>
+        <div class="dropdown-item" onclick="doLogout()" style="color:var(--orange-2)">${ic.logout} Cerrar sesión</div>
+      </div>
+    </div>` : `
+    <a class="btn btn-outline btn-sm" href="#/login">Iniciar sesión</a>
+    <a class="btn btn-primary btn-sm" href="#/registro">Crear cuenta</a>`;
+
+  return `
+  <div class="navbar">
+    <div class="navbar-inner">
+      ${Logo()}
+      <div class="nav-links">${links}</div>
+      <div class="nav-right">
+        ${authArea}
+        <button class="nav-burger" onclick="toggleMobileNav()">${ic.menu}</button>
+      </div>
+    </div>
+    <div class="mobile-menu ${state.mobileNavOpen?'open':''}">${links}
+      ${!isLogged?`<a class="nav-link" href="#/login">Iniciar sesión</a><a class="nav-link" href="#/registro">Crear cuenta</a>`:''}
+    </div>
+  </div>`;
+}
+function toggleMobileNav(){ state.mobileNavOpen=!state.mobileNavOpen; const m=document.querySelector('.mobile-menu'); if(m) m.classList.toggle('open',state.mobileNavOpen); }
+function toggleUserDropdown(e){ e.stopPropagation(); state.userDropdownOpen=!state.userDropdownOpen; const d=document.getElementById('user-dropdown'); if(d) d.classList.toggle('open',state.userDropdownOpen); }
+function doLogout(){ state.user=null; state.userDropdownOpen=false; go('#/'); toast('Sesión cerrada','wave'); }
+
+function sidebarLink(href,label,icon){
+  const active = location.hash.split('?')[0]===href;
+  return `<a class="side-link ${active?'active':''}" href="${href}"><span class="ic">${icon}</span>${label}</a>`;
+}
+function sidebarUsuario(){
+  return `<div class="sidebar-section">
+    <div class="sidebar-label">Mi cuenta</div>
+    ${sidebarLink('#/dashboard','Panel principal',ic.home)}
+    ${sidebarLink('#/catalogo','Catálogo de mascotas',ic.search)}
+    ${sidebarLink('#/favoritos','Favoritos',ic.heart)}
+    ${sidebarLink('#/seguimiento','Mis solicitudes',ic.file)}
+    ${sidebarLink('#/perfil','Mi perfil',ic.user)}
+    ${sidebarLink('#/notificaciones','Notificaciones',ic.bell)}
+  </div>`;
+}
+function sidebarRefugio(){
+  return `<div class="sidebar-section">
+    <div class="sidebar-label">Refugio</div>
+    ${sidebarLink('#/refugio/dashboard','Panel principal',ic.home)}
+    ${sidebarLink('#/refugio/mascotas','Gestión de mascotas',ic.paw)}
+    ${sidebarLink('#/refugio/solicitudes','Solicitudes recibidas',ic.file)}
+    ${sidebarLink('#/refugio/perfil','Perfil del refugio',ic.building)}
+    ${sidebarLink('#/notificaciones','Notificaciones',ic.bell)}
+  </div>`;
+}
+function sidebarAdmin(){
+  return `<div class="sidebar-section">
+    <div class="sidebar-label">Administración</div>
+    ${sidebarLink('#/admin/dashboard','Panel general',ic.home)}
+    ${sidebarLink('#/admin/usuarios','Usuarios',ic.user)}
+    ${sidebarLink('#/admin/refugios','Refugios',ic.building)}
+    ${sidebarLink('#/admin/solicitudes','Solicitudes',ic.file)}
+    ${sidebarLink('#/admin/reportes','Reportes y estadísticas',ic.chart)}
+    ${sidebarLink('#/notificaciones','Notificaciones',ic.bell)}
+  </div>`;
+}
+function appShell(sidebarHtml, contentHtml){
+  return `
+  ${topNavbar()}
+  <div class="app-shell">
+    <div class="sidebar-backdrop ${state.sidebarOpen?'open':''}" onclick="toggleSidebar()"></div>
+    <aside class="sidebar ${state.sidebarOpen?'open':''}">${sidebarHtml}</aside>
+    <main class="main-content">
+      <button class="btn btn-outline btn-sm mobile-sidebar-toggle" style="margin-bottom:16px" onclick="toggleSidebar()">${ic.menu} Menú</button>
+      ${contentHtml}
+    </main>
+  </div>`;
+}
+function toggleSidebar(){
+  state.sidebarOpen=!state.sidebarOpen;
+  const sb=document.querySelector('.sidebar'), bd=document.querySelector('.sidebar-backdrop');
+  if(sb) sb.classList.toggle('open',state.sidebarOpen);
+  if(bd) bd.classList.toggle('open',state.sidebarOpen);
+}
+
+function pageFooter(){
+  return `<footer class="footer"><div class="wrap footer-inner">
+    ${Logo({size:28})}
+    <div class="footer-links"><a href="#/">Inicio</a><a href="#/catalogo">Mascotas</a><a href="#/registro">Registrarse</a><a href="#/login">Iniciar sesión</a></div>
+    <div style="font-size:12.5px;color:var(--taupe)">© 2026 ADOPT ME · Adopta amor, cambia vidas.</div>
+  </div></footer>`;
+}
+
+/* =========================================================
+   VISTA: LANDING
+========================================================= */
+function heroPetCard(p, pos, h){
+  if(!p) return '';
+  const r = refugioById(p.refugioId);
+  return `<div class="float-card" style="${pos}">
+    <div style="height:${h}px;border-radius:14px;overflow:hidden;">${petArt(p)}</div>
+    <div style="padding-top:10px;font-weight:800;font-family:var(--font-display)">${esc(p.nombre)} · ${esc(p.raza)}</div>
+    <div style="font-size:12px;color:var(--taupe)">${esc(r?r.ciudad:'')} · Disponible</div>
+  </div>`;
+}
+function viewLanding(){
+  const heroPets = listedAvailablePets();
+  return `
+  ${topNavbar()}
+  <section class="hero"><div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow-pill">${ic.paw} Plataforma de adopción responsable</div>
+      <h1>Adopta amor,<br>cambia vidas.</h1>
+      <p class="lead">ADOPT ME conecta refugios y familias en un solo lugar: encuentra a tu compañero ideal, sigue tu solicitud paso a paso y olvídate de las hojas de cálculo dispersas.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#/catalogo">Ver mascotas disponibles ${ic.arrowR}</a>
+        <a class="btn btn-outline" href="#/registro">Soy un refugio</a>
+      </div>
+      <div class="hero-stats">
+        <div><b>${listedAvailablePets().length}</b><span>Mascotas disponibles</span></div>
+        <div><b>${REFUGIOS.filter(r=>r.estado==='activo').length}</b><span>Refugios aliados</span></div>
+        <div><b>${PETS.filter(p=>p.estado==='adoptado').length}</b><span>Adopciones exitosas</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="blob" style="width:320px;height:320px;top:20px;right:20px;"></div>
+      ${heroPetCard(heroPets[0],'top:10px;left:0;width:210px;',130)}
+      ${heroPetCard(heroPets[1],'bottom:10px;right:0;width:190px;',110)}
+      <div class="float-card" style="top:170px;left:60px;width:170px;padding:16px;">
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:var(--dark);color:var(--cream);display:flex;align-items:center;justify-content:center">${ic.check}</div><div style="font-size:12.5px;font-weight:700">Solicitud<br>aprobada</div></div>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="section" id="sobre-nosotros"><div class="wrap">
+    <div class="split-2">
+      <div class="pp-card">
+        <div class="eyebrow-pill" style="margin-bottom:16px">El problema</div>
+        <h3>Procesos de adopción dispersos y manuales</h3>
+        <p>El registro de mascotas, las solicitudes y el seguimiento de adopciones se hacían en hojas de cálculo y mensajes sueltos, generando registros duplicados y demoras.</p>
+      </div>
+      <div class="pp-card" style="background:var(--dark)">
+        <div class="eyebrow-pill" style="margin-bottom:16px;background:rgba(255,255,255,.12);color:var(--orange-tint)">La solución</div>
+        <h3 style="color:var(--cream)">Un solo lugar para todo el proceso</h3>
+        <p style="color:var(--taupe-tint)">Acceso rápido a la información y un proceso de solicitud estructurado, con seguimiento claro para adoptantes, refugios y administradores.</p>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="wrap">
+    <div class="section-head"><h2>Mascotas que esperan un hogar</h2><p>Una muestra de los peludos disponibles ahora mismo en nuestros refugios aliados.</p></div>
+    <div class="pet-grid">${listedAvailablePets().slice(0,3).map(petCard).join('')}</div>
+    <div style="text-align:center;margin-top:30px"><a class="btn btn-dark" href="#/catalogo">Ver catálogo completo ${ic.arrowR}</a></div>
+  </div></section>
+
+  <section class="section"><div class="wrap">
+    <div class="section-head"><h2>¿Cómo funciona?</h2><p>De la búsqueda a la adopción, en cuatro pasos claros.</p></div>
+    <div class="steps-row">
+      ${[['Explora','Filtra por especie, tamaño y edad hasta encontrar a tu compañero ideal.'],
+        ['Solicita','Completa el formulario de adopción responsable en minutos.'],
+        ['Sigue tu proceso','Consulta el estado de tu solicitud en tiempo real.'],
+        ['Adopta','Recibe la aprobación y coordina la entrega con el refugio.']].map((s,i)=>`
+      <div class="pp-card"><div class="step-num">${i+1}</div><h3>${s[0]}</h3><p>${s[1]}</p></div>`).join('')}
+    </div>
+  </div></section>
+
+  <section class="section"><div class="wrap">
+    <div class="cta-band">
+      <h2>¿Tienes un refugio o eres rescatista?</h2>
+      <p>Publica tus mascotas, gestiona solicitudes y encuentra hogares responsables.</p>
+      <a class="btn btn-primary" href="#/registro">Registrar mi refugio</a>
+    </div>
+  </div></section>
+  ${pageFooter()}
+  `;
+}
+
+function petCard(p){
+  const isFav = state.favoritos.includes(p.id);
+  return `
+  <div class="pet-card" onclick="go('#/mascota/${p.id}')">
+    <div class="pet-photo">
+      ${petArt(p)}
+      <button class="pet-fav ${isFav?'on':''}" onclick="event.stopPropagation();toggleFavorite(${p.id})" aria-label="Favorito">${isFav?ic.heartFill:ic.heart}</button>
+    </div>
+    <div class="pet-body">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div><div class="pet-name">${esc(p.nombre)}</div><div class="pet-meta">${esc(p.raza)} · ${esc(p.edad)}</div></div>
+        <span class="badge ${estadoBadgeClass(p.estado)}">${p.estado}</span>
+      </div>
+      <div class="pet-tags"><span class="tag">${esc(p.especie)}</span><span class="tag">${esc(p.tamano)}</span><span class="tag">${esc(p.sexo)}</span></div>
+    </div>
+  </div>`;
+}
+function toggleFavorite(id){
+  if(!state.user){ toast('Inicia sesión para guardar favoritos','lock'); go('#/login'); return; }
+  const i = state.favoritos.indexOf(id);
+  if(i>-1){ state.favoritos.splice(i,1); toast('Eliminado de favoritos','unlove'); }
+  else { state.favoritos.push(id); toast('Agregado a favoritos','love'); }
+  render();
+}
+
+/* =========================================================
+   VISTA: LOGIN
+========================================================= */
+function viewLogin(){
+  return `
+  <div class="auth-shell"><div class="auth-card">
+    <a class="auth-back" href="#/">&larr; Volver al inicio</a>
+    <div style="display:flex;justify-content:center;margin-bottom:14px">${Logo({size:44})}</div>
+    <h1>Iniciar sesión</h1>
+    <p class="auth-sub">Bienvenido de nuevo a ADOPT ME</p>
+
+    <div class="demo-box"><b>Modo demo — entra directamente como:</b>
+      <div class="demo-role-btns">
+        <button class="btn btn-sm btn-outline" onclick="demoLogin('usuario')">${ic.user} Adoptante</button>
+        <button class="btn btn-sm btn-outline" onclick="demoLogin('refugio')">${ic.building} Refugio</button>
+        <button class="btn btn-sm btn-outline" onclick="demoLogin('admin')">${ic.shield} Administrador</button>
+      </div>
+    </div>
+
+    <form id="login-form" onsubmit="return false;">
+      <div class="field"><label>Correo electrónico</label><input type="email" id="login-email" placeholder="tucorreo@ejemplo.com" value="maria@ejemplo.com"></div>
+      <div class="field"><label>Contraseña</label>
+        <div class="pw-wrap"><input type="password" id="login-pass" placeholder="••••••••" value="12345678">
+        <button type="button" class="pw-toggle" onclick="togglePw('login-pass',this)">Ver</button></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:20px">
+        <a href="#/recuperar" style="font-size:13px;font-weight:700;color:var(--orange-2)">¿Olvidaste tu contraseña?</a>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="doLogin()">Iniciar sesión</button>
+    </form>
+    <div class="divider">o continúa con</div>
+    <button class="btn btn-outline btn-block" onclick="demoLogin('usuario')">
+      <svg width="18" height="18" viewBox="0 0 48 48" style="margin-right:8px"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.9 32.7 29.4 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 6.1 29.6 4 24 4 16.1 4 9.3 8.5 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.4 0 10.3-2.1 14-5.4l-6.5-5.4c-2 1.5-4.6 2.4-7.5 2.4-5.3 0-9.8-3.3-11.4-8l-6.6 5.1C9.2 39.5 16 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.6l6.5 5.4C39.6 37.4 44 31.6 44 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
+      Continuar con Google</button>
+    <div class="foot-link">¿No tienes cuenta? <a href="#/registro" style="color:var(--orange-2);font-weight:700">Regístrate</a></div>
+  </div></div>`;
+}
+function togglePw(id,btn){ const el=document.getElementById(id); if(el.type==='password'){el.type='text';btn.textContent='Ocultar';} else {el.type='password';btn.textContent='Ver';} }
+function demoLogin(rol){
+  // Perfiles demo alineados con los datos semilla (USERS / REFUGIOS / REQUESTS).
+  const perfiles = {
+    usuario:{id:1,nombre:'María Gómez',email:'maria@ejemplo.com'},
+    refugio:{id:1,nombre:'Huellas Felices',email:'camila@huellasfelices.org',refugioId:1},
+    admin:{id:1,nombre:'Admin ADOPT ME',email:'admin@adoptme.com'}
+  };
+  const perfil = perfiles[rol];
+  const bloqueo = accountBlockReason(rol, rol==='refugio'?perfil.refugioId:perfil.id);
+  if(bloqueo){ toast(bloqueo,'lock'); return; }
+  state.user = Object.assign({rol}, perfil);
+  toast(`Sesión iniciada como ${rol}`,'wave');
+  go(rol==='usuario'?'#/dashboard':rol==='refugio'?'#/refugio/dashboard':'#/admin/dashboard');
+}
+function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value.trim();
+  if(!email||!pass){ toast('Ingresa tu correo y contraseña','warn'); return; }
+  demoLogin('usuario');
+}
+
+/* =========================================================
+   VISTA: REGISTRO
+========================================================= */
+let regTab = 'usuario';
+function viewRegistro(){
+  return `
+  <div class="auth-shell"><div class="auth-card" style="max-width:520px">
+    <a class="auth-back" href="#/">&larr; Volver al inicio</a>
+    <div style="display:flex;justify-content:center;margin-bottom:14px">${Logo({size:44})}</div>
+    <h1>Crear cuenta</h1>
+    <p class="auth-sub">Únete a la comunidad ADOPT ME</p>
+    <div class="seg-tabs">
+      <button class="seg-tab ${regTab==='usuario'?'active':''}" onclick="setRegTab('usuario')">${ic.user} Soy adoptante</button>
+      <button class="seg-tab ${regTab==='refugio'?'active':''}" onclick="setRegTab('refugio')">${ic.building} Soy un refugio</button>
+    </div>
+    <form onsubmit="return false;">
+      ${regTab==='usuario' ? `
+        <div class="row-2">
+          <div class="field"><label>Nombre completo</label><input type="text" placeholder="Nombre y apellido"></div>
+          <div class="field"><label>Número de documento</label><input type="text" placeholder="1034505603"><span class="hint">Debe ser único en la plataforma</span></div>
+        </div>
+        <div class="row-2">
+          <div class="field"><label>Correo electrónico</label><input type="email" placeholder="tucorreo@ejemplo.com"></div>
+          <div class="field"><label>Teléfono</label><input type="tel" placeholder="(300) 123 4567"></div>
+        </div>
+        <div class="field"><label>Dirección</label><input type="text" placeholder="Dirección y ciudad"></div>
+      ` : `
+        <div class="field"><label>Nombre de la organización</label><input type="text" placeholder="Nombre del refugio"></div>
+        <div class="row-2">
+          <div class="field"><label>Correo electrónico</label><input type="email" placeholder="contacto@refugio.org"></div>
+          <div class="field"><label>Teléfono</label><input type="tel" placeholder="(300) 123 4567"></div>
+        </div>
+        <div class="row-2">
+          <div class="field"><label>Dirección</label><input type="text" placeholder="Dirección y ciudad"></div>
+          <div class="field"><label>Documento legal</label><input type="text" placeholder="NIT / Registro legal"></div>
+        </div>
+      `}
+      <div class="row-2">
+        <div class="field"><label>Contraseña</label><input type="password" placeholder="Mínimo 8 caracteres"></div>
+        <div class="field"><label>Confirmar contraseña</label><input type="password" placeholder="Repite la contraseña"></div>
+      </div>
+      <div class="checkbox-row"><input type="checkbox" id="tyc"><label for="tyc">Acepto los <a href="#/registro" onclick="openTermsModal(event)" style="color:var(--orange-2);font-weight:700">términos y condiciones</a> y la política de privacidad.</label></div>
+      <div class="checkbox-row"><input type="checkbox" id="notif-c"><label for="notif-c">Deseo recibir notificaciones sobre nuevas mascotas y actualizaciones de mis solicitudes.</label></div>
+      <button class="btn btn-primary btn-block" onclick="doRegister()">Crear cuenta</button>
+    </form>
+    <div class="foot-link">¿Ya tienes cuenta? <a href="#/login" style="color:var(--orange-2);font-weight:700">Iniciar sesión</a></div>
+  </div></div>`;
+}
+function openTermsModal(e){
+  e.preventDefault();
+  openModal(`<div class="modal-box">
+    <h3>Términos y política de privacidad</h3>
+    <p>Estos documentos aún no han sido redactados en este prototipo. Deben publicarse antes del lanzamiento, de acuerdo con la Ley 1581 de 2012 (protección de datos personales).</p>
+    <div class="modal-actions"><button class="btn btn-primary" onclick="closeModal()">Entendido</button></div>
+  </div>`);
+}
+function setRegTab(t){ regTab=t; render(); }
+function doRegister(){
+  const tyc = document.getElementById('tyc');
+  if(tyc && !tyc.checked){ toast('Debes aceptar los términos y condiciones','warn'); return; }
+  if(regTab==='usuario'){
+    state.user = {id:99,nombre:'Nuevo Adoptante',rol:'usuario',email:'nuevo@adoptme.com'};
+    toast('Cuenta creada correctamente','success'); go('#/dashboard');
+  } else {
+    REFUGIOS.push({id:REFUGIOS.length+1,nombre:'Nuevo Refugio',ciudad:'Por definir',tipo:'Fundación',anio:2026,contacto:'',cargo:'',correoContacto:'',telefono:'',estado:'activo'});
+    state.user = {id:99,nombre:'Nuevo Refugio',rol:'refugio',email:'nuevo@refugio.org',refugioId:REFUGIOS.length};
+    toast('Cuenta de refugio creada','success'); go('#/refugio/dashboard');
+  }
+}
+
+/* =========================================================
+   VISTA: CATÁLOGO
+========================================================= */
+// Lista del catálogo según filtros activos. Una sola implementación para la vista y la actualización parcial.
+function filterCatalogPets(){
+  const f = state.catalogFilters;
+  let list = PETS.filter(isPetListed);
+  if(f.especie) list = list.filter(p=>p.especie===f.especie);
+  if(f.tamano) list = list.filter(p=>p.tamano===f.tamano);
+  if(f.edad==='joven') list = list.filter(p=>/mes|1 año/.test(p.edad));
+  if(f.edad==='adulto') list = list.filter(p=>/[2-4] años/.test(p.edad));
+  if(f.edad==='senior') list = list.filter(p=>/[5-9] años/.test(p.edad));
+  if(f.q) list = list.filter(p=>p.nombre.toLowerCase().includes(f.q.toLowerCase())||p.raza.toLowerCase().includes(f.q.toLowerCase()));
+  return list.filter(p=>state.statusFilter?p.estado===state.statusFilter:p.estado!=='adoptado');
+}
+function catalogCountText(n){ return `${n} ${n===1?'mascota encontrada':'mascotas encontradas'}`; }
+function catalogResultsHtml(list){
+  return list.length
+    ? `<div class="pet-grid">${list.map(petCard).join('')}</div>`
+    : `<div class="empty">${ic.search}<h3 style="margin-top:10px">No encontramos mascotas con esos filtros</h3><p>Intenta ajustar la búsqueda.</p></div>`;
+}
+function viewCatalogo(){
+  const f = state.catalogFilters;
+  const list = filterCatalogPets();
+  const sel = (cur,val)=>cur===val?'selected':'';
+  const content = `
+    <div class="page-head"><div><h1>Catálogo de mascotas</h1><p class="page-sub" id="catalog-count">${catalogCountText(list.length)}</p></div></div>
+    <div class="filter-bar">
+      <input type="text" id="catalog-q" aria-label="Buscar mascotas" placeholder="Buscar por nombre o raza..." value="${esc(f.q)}" oninput="setFilter('q',this.value)" style="min-width:220px">
+      <select id="catalog-especie" aria-label="Especie" onchange="setFilter('especie',this.value)">
+        <option value="">Especie: todas</option>
+        <option ${sel(f.especie,'Perro')}>Perro</option><option ${sel(f.especie,'Gato')}>Gato</option><option ${sel(f.especie,'Conejo')}>Conejo</option>
+      </select>
+      <select id="catalog-tamano" aria-label="Tamaño" onchange="setFilter('tamano',this.value)">
+        <option value="">Tamaño: todos</option>
+        <option ${sel(f.tamano,'Pequeño')}>Pequeño</option><option ${sel(f.tamano,'Mediano')}>Mediano</option><option ${sel(f.tamano,'Grande')}>Grande</option>
+      </select>
+      <select id="catalog-edad" aria-label="Edad" onchange="setFilter('edad',this.value)">
+        <option value="">Edad: todas</option>
+        <option value="joven" ${sel(f.edad,'joven')}>Joven (0-1 año)</option>
+        <option value="adulto" ${sel(f.edad,'adulto')}>Adulto (2-4 años)</option>
+        <option value="senior" ${sel(f.edad,'senior')}>Senior (5+ años)</option>
+      </select>
+    </div>
+    <div class="pill-filters" style="margin-bottom:22px">
+      ${['disponible','en proceso','pausado'].map(s=>`<button class="pill-f ${state.statusFilter===s?'active':''}" onclick="setStatusFilter('${s}')">${s}</button>`).join('')}
+      <button class="pill-f ${!state.statusFilter?'active':''}" onclick="setStatusFilter('')">Todos</button>
+    </div>
+    <div id="catalog-results">${catalogResultsHtml(list)}</div>
+  `;
+  if(state.user) return appShell(sidebarForRole(), content);
+  return `${topNavbar()}<div class="main-content wrap" style="padding-top:32px">${content}</div>${pageFooter()}`;
+}
+// Escribir en el buscador solo actualiza los resultados: el input conserva foco, cursor y texto.
+function refreshCatalogResults(){
+  const list = filterCatalogPets();
+  document.getElementById('catalog-count').textContent = catalogCountText(list.length);
+  document.getElementById('catalog-results').innerHTML = catalogResultsHtml(list);
+}
+function setFilter(k,v){
+  state.catalogFilters[k]=v;
+  if(k==='q' && document.getElementById('catalog-results')) refreshCatalogResults(); else render();
+}
+function setStatusFilter(s){ state.statusFilter = s; render(); }
+function sidebarForRole(){
+  if(!state.user) return '';
+  if(state.user.rol==='usuario') return sidebarUsuario();
+  if(state.user.rol==='refugio') return sidebarRefugio();
+  return sidebarAdmin();
+}
+
+/* =========================================================
+   VISTA: DETALLE DE MASCOTA
+========================================================= */
+function viewDetalle(id){
+  const p = petById(id);
+  if(!canViewPet(p)) return view404(); // borradores y refugios suspendidos no se exponen por URL directa
+  const r = refugioById(p.refugioId);
+  const isFav = state.favoritos.includes(p.id);
+  const already = state.user && REQUESTS.some(q=>q.petId===p.id && q.userId===state.user.id && q.estado==='pendiente');
+  const content = `
+    <div class="breadcrumb"><a href="#/catalogo">Catálogo</a> / <b>${esc(p.nombre)}</b></div>
+    <div class="detail-grid">
+      <div>
+        <div class="detail-photo">${petArt(p)}</div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div><h1>${esc(p.nombre)}</h1><p class="page-sub">${esc(p.raza)} · ${esc(r?r.nombre:'')} · ${esc(r?r.ciudad:'')}</p></div>
+          <button class="icon-btn ${isFav?'active':''}" onclick="toggleFavorite(${p.id})">${isFav?ic.heartFill:ic.heart}</button>
+        </div>
+        <div style="margin-top:14px"><span class="badge ${estadoBadgeClass(p.estado)}">${p.estado}</span></div>
+        <p style="margin-top:16px;color:var(--dark-2)">${esc(p.desc)}</p>
+        <div class="info-grid">
+          <div class="info-item"><div class="k">Edad</div><div class="v">${esc(p.edad)}</div></div>
+          <div class="info-item"><div class="k">Tamaño</div><div class="v">${esc(p.tamano)}</div></div>
+          <div class="info-item"><div class="k">Sexo</div><div class="v">${esc(p.sexo)}</div></div>
+          <div class="info-item"><div class="k">Estado de salud</div><div class="v">${esc(p.salud)}</div></div>
+        </div>
+        <div class="compat-row">
+          <span class="compat-pill ${p.vacunado?'compat-yes':'compat-no'}">${p.vacunado?ic.check:ic.x} Vacunado</span>
+          <span class="compat-pill ${p.esterilizado?'compat-yes':'compat-no'}">${p.esterilizado?ic.check:ic.x} Esterilizado</span>
+          <span class="compat-pill ${p.ninos?'compat-yes':'compat-no'}">${p.ninos?ic.check:ic.x} Niños</span>
+          <span class="compat-pill ${p.perros?'compat-yes':'compat-no'}">${p.perros?ic.check:ic.x} Perros</span>
+          <span class="compat-pill ${p.gatos?'compat-yes':'compat-no'}">${p.gatos?ic.check:ic.x} Gatos</span>
+        </div>
+        <div style="margin-top:26px;display:flex;gap:12px;flex-wrap:wrap">
+          ${p.estado==='disponible' ? (already
+            ? `<button class="btn btn-outline" disabled>Ya tienes una solicitud pendiente</button>`
+            : `<button class="btn btn-primary" onclick="startSolicitud(${p.id})">Solicitar adopción ${ic.arrowR}</button>`)
+            : `<button class="btn btn-outline" disabled>No disponible actualmente</button>`}
+          <button class="btn btn-outline" onclick="openContactModal('refugio',${p.refugioId})">${ic.msg} Contactar refugio</button>
+        </div>
+      </div>
+    </div>
+  `;
+  if(state.user) return appShell(sidebarForRole(), content);
+  return `${topNavbar()}<div class="main-content wrap" style="padding-top:32px">${content}</div>${pageFooter()}`;
+}
+function startSolicitud(petId){
+  if(!state.user || state.user.rol!=='usuario'){ toast('Inicia sesión como adoptante para solicitar','lock'); go('#/login'); return; }
+  go('#/solicitud/'+petId);
+}
+// Muestra los datos de contacto registrados. No hay mensajería interna: no se finge un envío.
+// kind 'refugio' → id del refugio · kind 'usuario' → id de la solicitud (contacto del solicitante).
+function openContactModal(kind, id){
+  let nombre = '', persona = '', correo = '', telefono = '';
+  if(kind==='refugio'){
+    const r = refugioById(id);
+    if(r){ nombre=r.nombre; persona=[r.contacto,r.cargo].filter(Boolean).join(' · '); correo=r.correoContacto; telefono=r.telefono; }
+  } else {
+    const q = REQUESTS.find(x=>x.id===Number(id));
+    if(q){ nombre=q.userNombre; correo=q.userEmail; }
+  }
+  if(!nombre){ toast('No encontramos los datos de contacto','warn'); return; }
+  const line = (k,v)=>`<div class="list-line"><span style="color:var(--taupe)">${k}</span><span>${v}</span></div>`;
+  openModal(`<div class="modal-box">
+    <h3>${ic.msg} Contactar a ${esc(nombre)}</h3>
+    <p>La mensajería interna aún no está disponible. Usa estos datos para comunicarte directamente.</p>
+    ${persona?line('Contacto',esc(persona)):''}
+    ${line('Correo', correo?`<a href="mailto:${esc(correo)}" style="color:var(--orange-2);font-weight:700">${esc(correo)}</a>`:'No registrado')}
+    ${telefono?line('Teléfono',`<a href="tel:${esc(telefono.replace(/[^\d+]/g,''))}" style="color:var(--orange-2);font-weight:700">${esc(telefono)}</a>`):''}
+    <div class="modal-actions" style="margin-top:20px"><button class="btn btn-outline" onclick="closeModal()">Cerrar</button>
+    ${correo?`<a class="btn btn-primary" href="mailto:${esc(correo)}">Escribir un correo</a>`:''}</div>
+  </div>`);
+}
+
+/* =========================================================
+   VISTA: FAVORITOS
+========================================================= */
+function viewFavoritos(){
+  if(!requireAuth(['usuario'])) return '';
+  const list = PETS.filter(p=>state.favoritos.includes(p.id) && canViewPet(p));
+  const content = `
+    <div class="page-head"><div><h1>Mis favoritos</h1><p class="page-sub">Mascotas que has guardado para revisar más tarde</p></div></div>
+    ${list.length? `<div class="pet-grid">${list.map(petCard).join('')}</div>` :
+    `<div class="empty">${ic.heart}<h3 style="margin-top:10px">Aún no tienes favoritos</h3><p>Explora el catálogo y guarda las mascotas que más te gusten.</p><a class="btn btn-primary" href="#/catalogo">Ver catálogo</a></div>`}
+  `;
+  return appShell(sidebarUsuario(), content);
+}
+
+/* =========================================================
+   VISTA: DASHBOARD USUARIO
+========================================================= */
+function viewDashboardUsuario(){
+  if(!requireAuth(['usuario'])) return '';
+  const misSolicitudes = myRequests();
+  const recomendadas = listedAvailablePets().slice(0,3);
+  const content = `
+    <div class="page-head"><div><h1>Hola, ${esc(state.user.nombre.split(' ')[0])}</h1><p class="page-sub">Este es el resumen de tu actividad en ADOPT ME</p></div>
+    <a class="btn btn-primary" href="#/catalogo">Buscar mascotas ${ic.arrowR}</a></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">${state.favoritos.length}</div><div class="stat-label">Favoritos guardados</div></div>
+      <div class="stat-card"><div class="stat-num">${misSolicitudes.length}</div><div class="stat-label">Solicitudes enviadas</div></div>
+      <div class="stat-card"><div class="stat-num">${misSolicitudes.filter(r=>r.estado==='pendiente').length}</div><div class="stat-label">En revisión</div></div>
+      <div class="stat-card accent"><div class="stat-num">${misSolicitudes.filter(r=>r.estado==='aprobada').length}</div><div class="stat-label">Adopciones logradas</div></div>
+    </div>
+    <div class="two-col-panel">
+      <div class="card">
+        <div class="section-title-sm">Estado de tus solicitudes</div>
+        ${misSolicitudes.length? misSolicitudes.map(r=>{const p=petById(r.petId); return `
+        <div class="list-line"><span>${p?esc(p.nombre):'—'}</span><span class="badge badge-${r.estado}">${r.estado}</span></div>`;}).join('') : `<p style="color:var(--taupe);font-size:14px">Aún no has enviado solicitudes.</p>`}
+        <a href="#/seguimiento" class="btn btn-ghost btn-sm" style="margin-top:10px">Ver todas ${ic.arrowR}</a>
+      </div>
+      <div class="card">
+        <div class="section-title-sm">Recomendadas para ti</div>
+        ${recomendadas.map(p=>`<div class="list-line"><span style="display:flex;align-items:center;gap:10px">${petThumb(p,32,'8px')} ${esc(p.nombre)} · ${esc(p.raza)}</span><a href="#/mascota/${p.id}" style="color:var(--orange-2);font-weight:700;font-size:13px">Ver</a></div>`).join('')}
+      </div>
+    </div>
+  `;
+  return appShell(sidebarUsuario(), content);
+}
+
+/* =========================================================
+   VISTA: SOLICITUD DE ADOPCIÓN
+========================================================= */
+function viewSolicitud(id){
+  if(!requireAuth(['usuario'])) return '';
+  const p = petById(id);
+  if(!canViewPet(p)) return view404();
+  if(p.estado!=='disponible'){ toast(`${p.nombre} no está disponible para adopción`,'warn'); go('#/mascota/'+p.id); return ''; }
+  const content = `
+    <div class="breadcrumb"><a href="#/mascota/${p.id}">${esc(p.nombre)}</a> / <b>Solicitud de adopción</b></div>
+    <div class="page-head"><div><h1>Adoptar a ${esc(p.nombre)}</h1><p class="page-sub">Completa el formulario de adopción responsable. Tu solicitud quedará registrada con la fecha de envío.</p></div></div>
+    <div style="max-width:640px">
+      <div class="card">
+        <div class="section-title-sm">Sobre tu vivienda</div>
+        <div class="row-2">
+          <div class="field"><label>Tipo de vivienda</label>
+            <select id="s-vivienda"><option>Casa</option><option>Apartamento</option></select>
+          </div>
+          <div class="field"><label>Tamaño aproximado</label><input type="text" id="s-tamano" placeholder="Ej. 80 m²"></div>
+        </div>
+        <div class="checkbox-row"><input type="checkbox" id="s-patio"><label for="s-patio">Mi vivienda cuenta con patio o espacio exterior</label></div>
+
+        <div class="section-title-sm" style="margin-top:22px">Motivo de adopción</div>
+        <div class="field"><textarea id="s-motivo" placeholder="Cuéntale al refugio por qué quieres adoptar y qué experiencia tienes con mascotas..."></textarea></div>
+
+        <div class="section-title-sm" style="margin-top:22px">Compromisos de cuidado responsable</div>
+        <div class="checkbox-row"><input type="checkbox" class="s-compromiso"><label>Me comprometo a brindar alimentación, atención veterinaria y espacio adecuado.</label></div>
+        <div class="checkbox-row"><input type="checkbox" class="s-compromiso"><label>Entiendo que la adopción es una responsabilidad a largo plazo.</label></div>
+        <div class="checkbox-row"><input type="checkbox" class="s-compromiso"><label>Autorizo una visita de seguimiento por parte del refugio si es necesario.</label></div>
+
+        <div style="display:flex;gap:12px;margin-top:10px">
+          <button class="btn btn-outline" onclick="history.back()">Cancelar</button>
+          <button class="btn btn-primary" onclick="submitSolicitud(${p.id})">Enviar solicitud</button>
+        </div>
+      </div>
+    </div>
+  `;
+  return appShell(sidebarUsuario(), content);
+}
+function submitSolicitud(petId){
+  const motivo = document.getElementById('s-motivo').value.trim();
+  const compromisos = Array.from(document.querySelectorAll('.s-compromiso'));
+  if(!motivo){ toast('Cuéntanos el motivo de tu adopción','warn'); return; }
+  if(!compromisos.every(c=>c.checked)){ toast('Debes aceptar todos los compromisos de cuidado','warn'); return; }
+  const p = petById(petId);
+  // Revalidar al enviar: el estado pudo cambiar mientras el formulario estaba abierto.
+  if(!canViewPet(p) || p.estado!=='disponible'){ toast('Esta mascota ya no está disponible','warn'); go('#/mascota/'+petId); return; }
+  if(REQUESTS.some(q=>q.petId===petId && q.userId===state.user.id && q.estado==='pendiente')){ toast('Ya tienes una solicitud pendiente para esta mascota','warn'); go('#/seguimiento'); return; }
+  const nr = {id:reqSeq++, petId, userId:state.user.id, userNombre:state.user.nombre, userEmail:state.user.email, refugioId:p.refugioId, estado:'pendiente',
+    fecha:new Date().toISOString().slice(0,10), motivo,
+    vivienda:document.getElementById('s-vivienda').value, patio:document.getElementById('s-patio').checked, tamanoVivienda:document.getElementById('s-tamano').value};
+  REQUESTS.push(nr);
+  p.estado = p.estado==='disponible' ? 'en proceso' : p.estado;
+  toast('¡Solicitud enviada con éxito!','success');
+  go('#/seguimiento');
+}
+
+/* =========================================================
+   VISTA: SEGUIMIENTO DE SOLICITUDES (usuario)
+========================================================= */
+function viewSeguimiento(){
+  if(!requireAuth(['usuario'])) return '';
+  const mine = myRequests();
+  const content = `
+    <div class="page-head"><div><h1>Seguimiento de solicitudes</h1><p class="page-sub">Consulta el estado de cada solicitud de adopción que has enviado</p></div></div>
+    ${mine.length? mine.map(r=>{
+      const p = petById(r.petId);
+      const stepIdx = r.estado==='pendiente'?1:2;
+      return `
+      <div class="card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+          <div style="display:flex;gap:14px;align-items:center">${petThumb(p,52,'14px')}
+            <div><h3>${p?esc(p.nombre):'Mascota'}</h3><div class="page-sub" style="margin-top:2px">Solicitud #${r.id} · Enviada el ${esc(r.fecha)}</div></div></div>
+          <span class="badge badge-${r.estado}">${r.estado}</span>
+        </div>
+        <div class="track-steps">
+          <div class="track-step done"><div class="track-dot done">${ic.check}</div><span>Enviada</span></div>
+          <div class="track-step ${r.estado!=='pendiente'?'done':''}"><div class="track-dot ${r.estado!=='pendiente'?'done':''}">${r.estado!=='pendiente'?ic.check:'2'}</div><span>En revisión</span></div>
+          <div class="track-step ${r.estado==='aprobada'?'done':''}"><div class="track-dot ${r.estado==='aprobada'?'done':r.estado==='rechazada'?'rejected':''}">${r.estado==='aprobada'?ic.check:r.estado==='rechazada'?ic.x:'3'}</div><span>${r.estado==='rechazada'?'Rechazada':'Aprobada'}</span></div>
+        </div>
+        ${r.estado==='rechazada'?`<p style="margin-top:10px;color:var(--taupe);font-size:13.5px"><b>Motivo:</b> ${esc(r.motivoRechazo||'No especificado')}</p>`:''}
+        ${r.estado==='aprobada'?`<p style="margin-top:10px;color:var(--taupe);font-size:13.5px">Tu solicitud fue aprobada. Comunícate con el refugio para coordinar la entrega.</p><button class="btn btn-outline btn-sm" style="margin-top:12px" onclick="openContactModal('refugio',${r.refugioId})">${ic.msg} Contactar al refugio</button>`:''}
+        ${r.estado==='pendiente'?`<button class="btn btn-outline btn-sm" style="margin-top:12px" onclick="cancelSolicitud(${r.id})">Cancelar solicitud</button>`:''}
+      </div>`;
+    }).join('') : `<div class="empty">${ic.file}<h3 style="margin-top:10px">No tienes solicitudes aún</h3><p>Cuando solicites adoptar una mascota, podrás seguir su estado aquí.</p><a class="btn btn-primary" href="#/catalogo">Explorar mascotas</a></div>`}
+  `;
+  return appShell(sidebarUsuario(), content);
+}
+function cancelSolicitud(id){
+  confirmModal({title:'Cancelar solicitud', body:'¿Confirmas que deseas cancelar esta solicitud de adopción? Esta acción no se puede deshacer.', confirmLabel:'Sí, cancelar', danger:true,
+    onConfirm:()=>{ const r=REQUESTS.find(x=>x.id===id); REQUESTS=REQUESTS.filter(x=>x.id!==id); toast('Solicitud cancelada','delete'); render(); }});
+}
+
+/* =========================================================
+   VISTA: PERFIL USUARIO
+========================================================= */
+function viewPerfilUsuario(){
+  if(!requireAuth(['usuario'])) return '';
+  const content = `
+    <div class="page-head"><div><h1>Mi perfil</h1><p class="page-sub">Gestiona tu información personal y tu cuenta</p></div></div>
+    <div class="tab-strip">
+      <div class="tab-item ${state.profileTab!=='seguridad'&&state.profileTab!=='cuenta'?'active':''}" onclick="setProfileTab('info')">Información personal</div>
+      <div class="tab-item ${state.profileTab==='seguridad'?'active':''}" onclick="setProfileTab('seguridad')">Seguridad</div>
+      <div class="tab-item ${state.profileTab==='cuenta'?'active':''}" onclick="setProfileTab('cuenta')">Cuenta</div>
+    </div>
+    ${state.profileTab==='seguridad' ? `
+    <div class="card" style="max-width:520px">
+      <div class="section-title-sm">Cambiar contraseña</div>
+      <div class="field"><label>Contraseña actual</label><input type="password" placeholder="••••••••"></div>
+      <div class="field"><label>Nueva contraseña</label><input type="password" placeholder="Mínimo 8 caracteres"><span class="hint">Debe ser diferente a tu contraseña actual.</span></div>
+      <div class="field"><label>Confirmar nueva contraseña</label><input type="password" placeholder="Repite la nueva contraseña"></div>
+      <button class="btn btn-primary" onclick="toast('Contraseña actualizada','lock')">Actualizar contraseña</button>
+    </div>` : state.profileTab==='cuenta' ? `
+    <div class="card" style="max-width:520px">
+      <div class="section-title-sm">Desactivar cuenta</div>
+      <p style="color:var(--taupe);font-size:14px;margin-bottom:14px">Tu cuenta quedará inactiva temporalmente: no podrás iniciar sesión ni enviar solicitudes hasta reactivarla.</p>
+      <button class="btn btn-outline" onclick="confirmDeactivate()">Desactivar mi cuenta</button>
+      <div style="height:1px;background:var(--cream-2);margin:26px 0"></div>
+      <div class="section-title-sm">Eliminar cuenta</div>
+      <p style="color:var(--taupe);font-size:14px;margin-bottom:14px">Esta acción es permanente. Tu historial de adopciones se conservará en el sistema.</p>
+      <button class="btn btn-danger" onclick="confirmDelete()">${ic.trash} Eliminar mi cuenta</button>
+    </div>` : `
+    <div class="card" style="max-width:600px">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:22px">
+        <div class="avatar-lg">${initials(state.user.nombre)}</div>
+        <div><h3>${esc(state.user.nombre)}</h3><p class="page-sub">${esc(state.user.email)}</p></div>
+      </div>
+      <div class="row-2">
+        <div class="field"><label>Nombre</label><input type="text" value="${esc(state.user.nombre.split(' ')[0])}"></div>
+        <div class="field"><label>Apellido</label><input type="text" value="${esc(state.user.nombre.split(' ')[1]||'')}"></div>
+      </div>
+      <div class="row-2">
+        <div class="field"><label>Correo electrónico</label><input type="email" value="${esc(state.user.email)}" disabled></div>
+        <div class="field"><label>Teléfono</label><input type="tel" value="(300) 111 2233"></div>
+      </div>
+      <div class="field"><label>Dirección</label><input type="text" value="Calle 10 # 45-20, Medellín"></div>
+      <button class="btn btn-primary" onclick="toast('Perfil actualizado','success')">Guardar cambios</button>
+    </div>`}
+  `;
+  return appShell(sidebarUsuario(), content);
+}
+function setProfileTab(t){ state.profileTab=t; render(); }
+function confirmDeactivate(){
+  confirmModal({title:'Desactivar cuenta', body:'No podrás iniciar sesión hasta que reactives tu cuenta. ¿Deseas continuar?', confirmLabel:'Desactivar',
+    onConfirm:()=>{
+      const u = USERS.find(x=>x.id===state.user.id);
+      if(u) u.estado = 'inactivo';
+      state.user = null; state.userDropdownOpen = false;
+      go('#/'); toast('Tu cuenta fue desactivada','pause');
+    }});
+}
+function confirmDelete(){
+  confirmModal({title:'Eliminar cuenta permanentemente', body:'Esta acción no se puede deshacer. Tu historial de adopciones se conservará por motivos de trazabilidad.', confirmLabel:'Eliminar cuenta', danger:true,
+    onConfirm:()=>{ toast('Cuenta eliminada','delete'); doLogout(); }});
+}
+
+/* =========================================================
+   VISTA: DASHBOARD REFUGIO
+========================================================= */
+function viewDashboardRefugio(){
+  if(!requireAuth(['refugio'])) return '';
+  const rid = state.user.refugioId||1;
+  const misMascotas = PETS.filter(p=>p.refugioId===rid);
+  const misSolicitudes = REQUESTS.filter(r=>r.refugioId===rid);
+  const content = `
+    <div class="page-head"><div><h1>Panel del refugio</h1><p class="page-sub">${esc(refugioById(rid)?.nombre||'Tu refugio')} — resumen de actividad</p></div>
+    <a class="btn btn-primary" href="#/refugio/mascotas/nueva">${ic.plus} Registrar mascota</a></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">${misMascotas.length}</div><div class="stat-label">Mascotas registradas</div></div>
+      <div class="stat-card"><div class="stat-num">${misMascotas.filter(p=>p.estado==='disponible').length}</div><div class="stat-label">Disponibles</div></div>
+      <div class="stat-card"><div class="stat-num">${misSolicitudes.filter(r=>r.estado==='pendiente').length}</div><div class="stat-label">Solicitudes pendientes</div></div>
+      <div class="stat-card accent"><div class="stat-num">${misMascotas.filter(p=>p.estado==='adoptado').length}</div><div class="stat-label">Adopciones logradas</div></div>
+    </div>
+    <div class="two-col-panel">
+      <div class="card">
+        <div class="section-title-sm">Últimas solicitudes recibidas</div>
+        ${misSolicitudes.slice(0,4).map(r=>{const p=petById(r.petId);return `<div class="list-line"><span>${esc(r.userNombre)} → ${p?esc(p.nombre):''}</span><span class="badge badge-${r.estado}">${r.estado}</span></div>`}).join('')||'<p style="color:var(--taupe);font-size:14px">Sin solicitudes por ahora.</p>'}
+        <a href="#/refugio/solicitudes" class="btn btn-ghost btn-sm" style="margin-top:10px">Ver todas ${ic.arrowR}</a>
+      </div>
+      <div class="card">
+        <div class="section-title-sm">Mis mascotas</div>
+        ${misMascotas.slice(0,4).map(p=>`<div class="list-line"><span style="display:flex;align-items:center;gap:10px">${petThumb(p,32,'8px')} ${esc(p.nombre)}</span><span class="badge ${estadoBadgeClass(p.estado)}">${p.estado}</span></div>`).join('')}
+        <a href="#/refugio/mascotas" class="btn btn-ghost btn-sm" style="margin-top:10px">Gestionar ${ic.arrowR}</a>
+      </div>
+    </div>
+  `;
+  return appShell(sidebarRefugio(), content);
+}
+
+/* =========================================================
+   VISTA: GESTIÓN DE MASCOTAS (refugio)
+========================================================= */
+function viewGestionMascotas(){
+  if(!requireAuth(['refugio'])) return '';
+  const rid = state.user.refugioId||1;
+  const mias = PETS.filter(p=>p.refugioId===rid);
+  const content = `
+    <div class="page-head"><div><h1>Gestión de mascotas</h1><p class="page-sub">Administra las mascotas registradas por tu refugio</p></div>
+    <a class="btn btn-primary" href="#/refugio/mascotas/nueva">${ic.plus} Nueva mascota</a></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Mascota</th><th>Especie / Raza</th><th>Estado</th><th>Publicación</th><th>Acciones</th></tr></thead>
+      <tbody>
+      ${mias.map(p=>`
+        <tr>
+          <td style="display:flex;align-items:center;gap:10px">${petThumb(p,38,'10px')}<b>${esc(p.nombre)}</b></td>
+          <td>${esc(p.especie)} · ${esc(p.raza)}</td>
+          <td>
+            <select onchange="changeEstado(${p.id}, this.value)" style="width:auto;padding:6px 10px;font-size:12.5px;border-radius:99px">
+              ${['disponible','en proceso','adoptado','pausado'].map(s=>`<option value="${s}" ${p.estado===s?'selected':''}>${s}</option>`).join('')}
+            </select>
+          </td>
+          <td><span class="badge ${p.pub==='publicado'?'badge-disponible':'badge-borrador'}">${p.pub}</span></td>
+          <td class="row-actions">
+            ${p.pub==='borrador'?`<button class="icon-btn" title="Publicar" onclick="publishPet(${p.id})">${ic.check}</button>`:''}
+            <a class="icon-btn" title="Editar" href="#/refugio/mascotas/editar/${p.id}">${ic.edit}</a>
+            <button class="icon-btn" title="Eliminar" onclick="deletePet(${p.id})">${ic.trash}</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>${!mias.length?`<div class="table-empty">Aún no has registrado mascotas.</div>`:''}</div>
+  `;
+  return appShell(sidebarRefugio(), content);
+}
+function changeEstado(id,val){ const p=petById(id); p.estado=val; toast(`Estado de ${p.nombre} actualizado a "${val}"`,'edit'); render(); }
+function publishPet(id){ const p=petById(id); p.pub='publicado'; toast(`${p.nombre} ahora es visible para adoptantes`,'success'); render(); }
+function deletePet(id){
+  const p = petById(id);
+  if(p.estado!=='disponible' && p.pub!=='borrador'){ toast('Solo puedes eliminar mascotas disponibles o en borrador','warn'); return; }
+  confirmModal({title:'Eliminar mascota', body:`¿Seguro que deseas eliminar el registro de ${p.nombre}? Esta acción no se puede deshacer.`, confirmLabel:'Eliminar', danger:true,
+    onConfirm:()=>{ PETS = PETS.filter(x=>x.id!==id); toast('Mascota eliminada','delete'); render(); }});
+}
+
+/* =========================================================
+   VISTA: REGISTRO / EDICIÓN DE MASCOTA
+========================================================= */
+function viewFormMascota(id){
+  if(!requireAuth(['refugio'])) return '';
+  const editing = !!id;
+  const p = editing ? petById(id) : {nombre:'',especie:'Perro',raza:'',edad:'',tamano:'Mediano',sexo:'Macho',desc:'',vacunado:false,esterilizado:false,ninos:false,perros:false,gatos:false,salud:''};
+  const content = `
+    <div class="breadcrumb"><a href="#/refugio/mascotas">Gestión de mascotas</a> / <b>${editing?'Editar':'Nueva mascota'}</b></div>
+    <div class="page-head"><div><h1>${editing?'Editar mascota':'Registrar nueva mascota'}</h1><p class="page-sub">Completa todos los campos obligatorios antes de guardar</p></div></div>
+    <div class="two-col-panel">
+      <div class="card">
+        <div class="section-title-sm">Información básica</div>
+        <div class="field"><label>Nombre</label><input id="f-nombre" type="text" value="${esc(p.nombre)}" placeholder="Nombre de la mascota"></div>
+        <div class="row-2">
+          <div class="field"><label>Especie</label><select id="f-especie"><option ${p.especie==='Perro'?'selected':''}>Perro</option><option ${p.especie==='Gato'?'selected':''}>Gato</option><option ${p.especie==='Conejo'?'selected':''}>Conejo</option></select></div>
+          <div class="field"><label>Raza</label><input id="f-raza" type="text" value="${esc(p.raza)}" placeholder="Raza"></div>
+        </div>
+        <div class="row-2">
+          <div class="field"><label>Edad</label><input id="f-edad" type="text" value="${esc(p.edad)}" placeholder="Ej. 2 años"></div>
+          <div class="field"><label>Sexo</label><select id="f-sexo"><option ${p.sexo==='Macho'?'selected':''}>Macho</option><option ${p.sexo==='Hembra'?'selected':''}>Hembra</option></select></div>
+        </div>
+        <div class="field"><label>Tamaño</label><select id="f-tamano"><option ${p.tamano==='Pequeño'?'selected':''}>Pequeño</option><option ${p.tamano==='Mediano'?'selected':''}>Mediano</option><option ${p.tamano==='Grande'?'selected':''}>Grande</option></select></div>
+        <div class="field"><label>Descripción</label><textarea id="f-desc" placeholder="Cuéntale a los adoptantes sobre su personalidad...">${esc(p.desc||'')}</textarea></div>
+        <div class="field"><label>Fotografías</label><div class="dashed-drop" aria-disabled="true">${ic.file}<div style="margin-top:8px">La carga de fotografías se habilitará cuando la plataforma esté conectada a un servidor. Por ahora cada mascota usa una ilustración.</div></div></div>
+      </div>
+      <div class="card">
+        <div class="section-title-sm">Salud</div>
+        <div class="checkbox-row"><input type="checkbox" id="f-vac" ${p.vacunado?'checked':''}><label>Vacunado</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="f-est" ${p.esterilizado?'checked':''}><label>Esterilizado</label></div>
+        <div class="field"><label>Estado de salud general</label><input id="f-salud" type="text" value="${esc(p.salud||'')}" placeholder="Ej. Excelente"></div>
+        <div class="section-title-sm" style="margin-top:20px">Compatibilidad</div>
+        <div class="checkbox-row"><input type="checkbox" id="f-ninos" ${p.ninos?'checked':''}><label>Compatible con niños</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="f-perros" ${p.perros?'checked':''}><label>Compatible con perros</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="f-gatos" ${p.gatos?'checked':''}><label>Compatible con gatos</label></div>
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button class="btn btn-outline btn-block" onclick="saveMascota(${editing?id:'null'}, 'borrador')">Guardar como borrador</button>
+        </div>
+        <button class="btn btn-primary btn-block" style="margin-top:10px" onclick="saveMascota(${editing?id:'null'}, 'publicado')">${editing?'Guardar cambios':'Publicar mascota'}</button>
+      </div>
+    </div>
+  `;
+  return appShell(sidebarRefugio(), content);
+}
+function saveMascota(id, pubState){
+  const nombre = document.getElementById('f-nombre').value.trim();
+  if(!nombre){ toast('El nombre es obligatorio','warn'); return; }
+  const data = {
+    nombre, especie:document.getElementById('f-especie').value, raza:document.getElementById('f-raza').value,
+    edad:document.getElementById('f-edad').value, sexo:document.getElementById('f-sexo').value, tamano:document.getElementById('f-tamano').value,
+    desc:document.getElementById('f-desc').value, vacunado:document.getElementById('f-vac').checked, esterilizado:document.getElementById('f-est').checked,
+    salud:document.getElementById('f-salud').value, ninos:document.getElementById('f-ninos').checked, perros:document.getElementById('f-perros').checked,
+    gatos:document.getElementById('f-gatos').checked, pub:pubState
+  };
+  if(id){
+    Object.assign(petById(id), data);
+    toast('Mascota actualizada','success');
+  } else {
+    PETS.push(Object.assign({id:Math.max(...PETS.map(p=>p.id))+1, refugioId:state.user.refugioId||1, estado:'disponible', art:defaultArtFor(data.especie)}, data));
+    toast(pubState==='publicado'?'Mascota publicada correctamente':'Borrador guardado','success');
+  }
+  go('#/refugio/mascotas');
+}
+
+/* =========================================================
+   VISTA: SOLICITUDES RECIBIDAS (refugio)
+========================================================= */
+function viewSolicitudesRefugio(){
+  if(!requireAuth(['refugio'])) return '';
+  const rid = state.user.refugioId||1;
+  const list = REQUESTS.filter(r=>r.refugioId===rid);
+  const content = `
+    <div class="page-head"><div><h1>Solicitudes recibidas</h1><p class="page-sub">Consulta a los adoptantes interesados en tus mascotas</p></div></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Solicitante</th><th>Mascota</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>
+      ${list.map(r=>{const p=petById(r.petId);return `
+        <tr>
+          <td>${esc(r.userNombre)}</td>
+          <td style="display:flex;align-items:center;gap:10px">${petThumb(p,32,'8px')}${p?esc(p.nombre):'—'}</td>
+          <td>${esc(r.fecha)}</td>
+          <td><span class="badge badge-${r.estado}">${r.estado}</span></td>
+          <td class="row-actions">
+            <button class="icon-btn" title="Ver detalle" onclick="viewReqDetail(${r.id})">${ic.eye}</button>
+            <button class="icon-btn" title="Contactar" onclick="openContactModal('usuario',${r.id})">${ic.msg}</button>
+          </td>
+        </tr>`}).join('')}
+      </tbody>
+    </table>${!list.length?`<div class="table-empty">No has recibido solicitudes todavía.</div>`:''}</div>
+    <p class="page-sub" style="margin-top:14px">Las decisiones de aprobación o rechazo las gestiona el administrador de la plataforma.</p>
+  `;
+  return appShell(sidebarRefugio(), content);
+}
+function viewReqDetail(id){
+  const r = REQUESTS.find(x=>x.id===id); const p = petById(r.petId);
+  openModal(`<div class="modal-box" style="max-width:480px">
+    <h3>Solicitud #${r.id} — ${p?esc(p.nombre):''}</h3>
+    <div class="info-grid" style="margin:16px 0">
+      <div class="info-item"><div class="k">Solicitante</div><div class="v" style="font-size:13.5px">${esc(r.userNombre)}</div></div>
+      <div class="info-item"><div class="k">Vivienda</div><div class="v" style="font-size:13.5px">${esc(r.vivienda)} (${r.patio?'con':'sin'} patio)</div></div>
+    </div>
+    <p style="font-size:13.5px;color:var(--dark-2)"><b>Motivo:</b> ${esc(r.motivo)}</p>
+    <div class="modal-actions" style="margin-top:20px"><button class="btn btn-outline" onclick="closeModal()">Cerrar</button></div>
+  </div>`);
+}
+
+/* =========================================================
+   VISTA: PERFIL DEL REFUGIO
+========================================================= */
+function viewPerfilRefugio(){
+  if(!requireAuth(['refugio'])) return '';
+  const rid = state.user.refugioId||1; const r = refugioById(rid)||{};
+  const content = `
+    <div class="page-head"><div><h1>Perfil del refugio</h1><p class="page-sub">Información institucional y de contacto</p></div></div>
+    <div class="two-col-panel">
+      <div class="card">
+        <div class="section-title-sm">Datos institucionales</div>
+        <div class="field"><label>Nombre de la organización</label><input type="text" value="${esc(r.nombre||'')}"></div>
+        <div class="row-2">
+          <div class="field"><label>Tipo de refugio</label><select><option ${r.tipo==='Fundación'?'selected':''}>Fundación</option><option ${r.tipo==='Albergue'?'selected':''}>Albergue</option><option ${r.tipo==='Rescatista independiente'?'selected':''}>Rescatista independiente</option></select></div>
+          <div class="field"><label>Año de fundación</label><input type="text" value="${r.anio||''}"></div>
+        </div>
+        <div class="row-2">
+          <div class="field"><label>Ciudad</label><input type="text" value="${esc(r.ciudad||'')}"></div>
+          <div class="field"><label>Teléfono</label><input type="tel" value="${esc(r.telefono||'')}"></div>
+        </div>
+        <div class="field"><label>Sitio web / Red social</label><input type="text" placeholder="https://..."></div>
+        <button class="btn btn-primary" onclick="toast('Información institucional actualizada','success')">Guardar cambios</button>
+      </div>
+      <div class="card">
+        <div class="section-title-sm">Persona de contacto</div>
+        <div class="field"><label>Nombre de contacto</label><input type="text" value="${esc(r.contacto||'')}"></div>
+        <div class="field"><label>Cargo</label><input type="text" value="${esc(r.cargo||'')}"></div>
+        <div class="field"><label>Correo de contacto</label><input type="email" value="${esc(r.correoContacto||'')}"></div>
+        <button class="btn btn-outline" onclick="toast('Contacto actualizado','success')">Actualizar contacto</button>
+        <div style="height:1px;background:var(--cream-2);margin:26px 0"></div>
+        <div class="section-title-sm">Eliminar cuenta del refugio</div>
+        <p style="color:var(--taupe);font-size:13.5px;margin-bottom:14px">No podrás eliminar tu cuenta si tienes solicitudes de adopción pendientes.</p>
+        <button class="btn btn-danger" onclick="tryDeleteRefugio(${rid})">${ic.trash} Eliminar cuenta</button>
+      </div>
+    </div>
+  `;
+  return appShell(sidebarRefugio(), content);
+}
+function tryDeleteRefugio(rid){
+  const pendientes = REQUESTS.filter(r=>r.refugioId===rid && r.estado==='pendiente');
+  if(pendientes.length){ toast(`No puedes eliminar la cuenta: tienes ${pendientes.length} solicitud(es) pendiente(s)`,'warn'); return; }
+  confirmModal({title:'Eliminar cuenta del refugio', body:'Esta acción es permanente. ¿Deseas continuar?', confirmLabel:'Eliminar', danger:true, onConfirm:()=>{toast('Cuenta de refugio eliminada','delete'); doLogout();}});
+}
+
+/* =========================================================
+   VISTA: DASHBOARD ADMIN
+========================================================= */
+function viewDashboardAdmin(){
+  if(!requireAuth(['admin'])) return '';
+  const content = `
+    <div class="page-head"><div><h1>Panel de administración</h1><p class="page-sub">Estadísticas generales de la plataforma en tiempo real</p></div></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">${PETS.length}</div><div class="stat-label">Mascotas registradas</div></div>
+      <div class="stat-card"><div class="stat-num">${PETS.filter(p=>p.estado==='disponible').length}</div><div class="stat-label">Disponibles</div></div>
+      <div class="stat-card"><div class="stat-num">${PETS.filter(p=>p.estado==='adoptado').length}</div><div class="stat-label">Adoptadas</div></div>
+      <div class="stat-card accent"><div class="stat-num">${REQUESTS.filter(r=>r.estado==='pendiente').length}</div><div class="stat-label">Solicitudes pendientes</div></div>
+    </div>
+    <div class="two-col-panel">
+      <div class="card">
+        <div class="section-title-sm">Usuarios y refugios</div>
+        <div class="list-line"><span>Usuarios registrados</span><b>${USERS.length}</b></div>
+        <div class="list-line"><span>Refugios activos</span><b>${REFUGIOS.filter(r=>r.estado==='activo').length}</b></div>
+        <div class="list-line"><span>Solicitudes totales</span><b>${REQUESTS.length}</b></div>
+        <a href="#/admin/reportes" class="btn btn-ghost btn-sm" style="margin-top:10px">Ver reportes completos ${ic.arrowR}</a>
+      </div>
+      <div class="card">
+        <div class="section-title-sm">Solicitudes pendientes por revisar</div>
+        ${REQUESTS.filter(r=>r.estado==='pendiente').slice(0,4).map(r=>{const p=petById(r.petId);return `<div class="list-line"><span>${esc(r.userNombre)} → ${p?esc(p.nombre):''}</span><a href="#/admin/solicitudes" style="color:var(--orange-2);font-weight:700;font-size:13px">Revisar</a></div>`}).join('')||'<p style="color:var(--taupe);font-size:14px">No hay solicitudes pendientes.</p>'}
+      </div>
+    </div>
+  `;
+  return appShell(sidebarAdmin(), content);
+}
+
+/* =========================================================
+   VISTA: GESTIÓN DE USUARIOS (admin)
+========================================================= */
+function viewAdminUsuarios(){
+  if(!requireAuth(['admin'])) return '';
+  const content = `
+    <div class="page-head"><div><h1>Gestión de usuarios</h1><p class="page-sub">Listado completo de usuarios registrados en la plataforma</p></div></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Registro</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>
+      ${USERS.map(u=>`
+        <tr>
+          <td><b>${esc(u.nombre)} ${esc(u.apellido)}</b></td>
+          <td>${esc(u.email)}</td>
+          <td>${esc(u.telefono)}</td>
+          <td>${esc(u.fecha)}</td>
+          <td><span class="badge badge-${u.estado}">${u.estado}</span></td>
+          <td class="row-actions"><button class="btn btn-sm ${u.estado==='activo'?'btn-outline':'btn-primary'}" onclick="toggleUserStatus(${u.id})">${u.estado==='activo'?'Desactivar':'Activar'}</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>
+  `;
+  return appShell(sidebarAdmin(), content);
+}
+function toggleUserStatus(id){
+  const u = USERS.find(x=>x.id===id); u.estado = u.estado==='activo'?'inactivo':'activo';
+  toast(`Cuenta de ${u.nombre} ahora está ${u.estado}`,'edit'); render();
+}
+
+/* =========================================================
+   VISTA: GESTIÓN DE REFUGIOS (admin)
+========================================================= */
+function viewAdminRefugios(){
+  if(!requireAuth(['admin'])) return '';
+  const content = `
+    <div class="page-head"><div><h1>Gestión de refugios</h1><p class="page-sub">Refugios y rescatistas registrados en la plataforma</p></div></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Refugio</th><th>Ciudad</th><th>Tipo</th><th>Mascotas publicadas</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>
+      ${REFUGIOS.map(r=>`
+        <tr>
+          <td><b>${esc(r.nombre)}</b></td>
+          <td>${esc(r.ciudad)}</td>
+          <td>${esc(r.tipo)}</td>
+          <td>${PETS.filter(p=>p.refugioId===r.id && p.pub==='publicado').length}</td>
+          <td><span class="badge badge-${r.estado==='activo'?'activo':'inactivo'}">${r.estado}</span></td>
+          <td class="row-actions"><button class="btn btn-sm ${r.estado==='activo'?'btn-outline':'btn-primary'}" onclick="toggleRefugioStatus(${r.id})">${r.estado==='activo'?'Suspender':'Activar'}</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>
+  `;
+  return appShell(sidebarAdmin(), content);
+}
+function toggleRefugioStatus(id){
+  const r=refugioById(id); r.estado=r.estado==='activo'?'inactivo':'activo';
+  toast(`${r.nombre} ahora está ${r.estado}.${r.estado==='inactivo'?' Sus mascotas dejan de mostrarse y no podrá iniciar sesión.':''}`,'edit');
+  render();
+}
+
+/* =========================================================
+   VISTA: GESTIÓN DE SOLICITUDES (admin)
+========================================================= */
+function viewAdminSolicitudes(){
+  if(!requireAuth(['admin'])) return '';
+  const content = `
+    <div class="page-head"><div><h1>Gestión de solicitudes</h1><p class="page-sub">Aprueba o rechaza las solicitudes de adopción registradas</p></div></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Solicitante</th><th>Mascota</th><th>Refugio</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>
+      ${REQUESTS.map(r=>{const p=petById(r.petId); const ref=refugioById(r.refugioId);return `
+        <tr>
+          <td>${esc(r.userNombre)}</td>
+          <td style="display:flex;align-items:center;gap:10px">${petThumb(p,32,'8px')}${p?esc(p.nombre):'—'}</td>
+          <td>${ref?esc(ref.nombre):''}</td>
+          <td>${esc(r.fecha)}</td>
+          <td><span class="badge badge-${r.estado}">${r.estado}</span></td>
+          <td class="row-actions">
+            <button class="icon-btn" title="Ver detalle" onclick="viewReqDetail(${r.id})">${ic.eye}</button>
+            ${r.estado==='pendiente'?`
+            <button class="icon-btn" title="Aprobar" onclick="approveReq(${r.id})">${ic.check}</button>
+            <button class="icon-btn" title="Rechazar" onclick="openRejectModal(${r.id})">${ic.x}</button>`:''}
+          </td>
+        </tr>`}).join('')}
+      </tbody>
+    </table></div>
+  `;
+  return appShell(sidebarAdmin(), content);
+}
+function approveReq(id){
+  const r = REQUESTS.find(x=>x.id===id);
+  confirmModal({title:'Aprobar solicitud', body:'La mascota pasará a estado "adoptado" y las demás solicitudes pendientes para esta mascota se rechazarán automáticamente.', confirmLabel:'Aprobar',
+    onConfirm:()=>{
+      r.estado='aprobada';
+      const p = petById(r.petId); p.estado='adoptado';
+      REQUESTS.filter(x=>x.petId===r.petId && x.id!==r.id && x.estado==='pendiente').forEach(x=>{x.estado='rechazada'; x.motivoRechazo='La mascota ya fue adoptada por otro solicitante.';});
+      toast('Solicitud aprobada y adopción registrada','success'); render();
+    }});
+}
+function openRejectModal(id){
+  openModal(`<div class="modal-box">
+    <h3>Rechazar solicitud</h3>
+    <p>Indica el motivo del rechazo. El solicitante será notificado.</p>
+    <div class="field"><textarea id="reject-motivo" placeholder="Ej. Espacio insuficiente para la mascota..."></textarea></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-danger" onclick="rejectReq(${id})">Rechazar solicitud</button></div>
+  </div>`);
+}
+function rejectReq(id){
+  const motivo = document.getElementById('reject-motivo').value.trim();
+  if(!motivo){ toast('El motivo de rechazo es obligatorio','warn'); return; }
+  const r = REQUESTS.find(x=>x.id===id); r.estado='rechazada'; r.motivoRechazo=motivo;
+  closeModal(); toast('Solicitud rechazada','success'); render();
+}
+
+/* =========================================================
+   VISTA: REPORTES Y ESTADÍSTICAS (admin)
+========================================================= */
+function viewAdminReportes(){
+  if(!requireAuth(['admin'])) return '';
+  const adopciones = REQUESTS.filter(r=>r.estado==='aprobada');
+  const pendientes = REQUESTS.filter(r=>r.estado==='pendiente');
+  const disponibles = PETS.filter(p=>p.estado==='disponible');
+  const content = `
+    <div class="page-head"><div><h1>Reportes y estadísticas</h1><p class="page-sub">Exporta y consulta los principales indicadores de la plataforma</p></div></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">${adopciones.length}</div><div class="stat-label">Adopciones realizadas</div></div>
+      <div class="stat-card"><div class="stat-num">${pendientes.length}</div><div class="stat-label">Solicitudes pendientes</div></div>
+      <div class="stat-card"><div class="stat-num">${disponibles.length}</div><div class="stat-label">Mascotas disponibles</div></div>
+      <div class="stat-card"><div class="stat-num">${USERS.length + REFUGIOS.length}</div><div class="stat-label">Usuarios + refugios</div></div>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div class="section-title-sm" style="margin:0">Adopciones realizadas</div>
+      <button class="btn btn-sm btn-outline" onclick='exportCSV("adopciones")'>${ic.download} Exportar CSV</button></div>
+      ${adopciones.map(r=>{const p=petById(r.petId); const ref=refugioById(r.refugioId);return `<div class="list-line"><span>${p?esc(p.nombre):''} → ${esc(r.userNombre)}</span><span style="color:var(--taupe)">${ref?esc(ref.nombre):''} · ${esc(r.fecha)}</span></div>`}).join('')||'<p style="color:var(--taupe);font-size:14px">Sin registros aún.</p>'}
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div class="section-title-sm" style="margin:0">Mascotas disponibles</div>
+      <button class="btn btn-sm btn-outline" onclick='exportCSV("mascotas")'>${ic.download} Exportar CSV</button></div>
+      ${disponibles.map(p=>{const ref=refugioById(p.refugioId);return `<div class="list-line"><span style="display:flex;align-items:center;gap:10px">${petThumb(p,32,'8px')} ${esc(p.nombre)} · ${esc(p.raza)}</span><span style="color:var(--taupe)">${ref?esc(ref.nombre):''}</span></div>`}).join('')}
+    </div>
+  `;
+  return appShell(sidebarAdmin(), content);
+}
+function exportCSV(type){
+  if(type==='adopciones'){
+    const rows = [['Mascota','Adoptante','Refugio','Fecha']].concat(REQUESTS.filter(r=>r.estado==='aprobada').map(r=>{const p=petById(r.petId);const ref=refugioById(r.refugioId);return [p?p.nombre:'',r.userNombre,ref?ref.nombre:'',r.fecha];}));
+    csvDownload('adopciones_adoptme.csv', rows);
+  } else {
+    const rows = [['Nombre','Especie','Raza','Refugio']].concat(PETS.filter(p=>p.estado==='disponible').map(p=>{const ref=refugioById(p.refugioId);return [p.nombre,p.especie,p.raza,ref?ref.nombre:''];}));
+    csvDownload('mascotas_disponibles_adoptme.csv', rows);
+  }
+}
+
+/* =========================================================
+   VISTA: NOTIFICACIONES
+========================================================= */
+function viewNotificaciones(){
+  if(!requireAuth()) return '';
+  const list = NOTIFS.filter(n=>n.role===state.user.rol);
+  const content = `
+    <div class="page-head"><div><h1>Notificaciones</h1><p class="page-sub">Mantente al día con tus solicitudes y actividad en ADOPT ME</p></div>
+    <button class="btn btn-outline btn-sm" onclick="markAllRead()">Marcar todas como leídas</button></div>
+    <div class="card" style="padding:12px">
+      ${list.length? list.map(n=>`
+      <div class="notif-item ${n.read?'':'unread'}">
+        <div class="notif-ic" style="color:${n.read?'var(--taupe)':'var(--orange-2)'}">${NOTIF_ICONS[n.icKey]||ic.bell}</div>
+        <div style="flex:1"><b style="font-size:14.5px">${esc(n.title)}</b><p style="font-size:13.5px;color:var(--taupe);margin-top:3px">${esc(n.body)}</p><span style="font-size:12px;color:var(--taupe)">${esc(n.fecha)}</span></div>
+      </div>`).join('') : `<div class="empty">${ic.bell}<h3 style="margin-top:10px">No tienes notificaciones</h3></div>`}
+    </div>
+  `;
+  return appShell(sidebarForRole(), content);
+}
+function markAllRead(){ NOTIFS.forEach(n=>{if(n.role===state.user.rol) n.read=true;}); toast('Notificaciones marcadas como leídas','success'); render(); }
+
+/* =========================================================
+   VISTA: 404
+========================================================= */
+function view404(){
+  return `${topNavbar()}
+  <div class="wrap" style="padding:80px 0;text-align:center">
+    <div style="font-size:90px">${ic.paw}</div>
+    <h1 style="font-size:64px;margin:10px 0">404</h1>
+    <h3 style="margin-bottom:10px">Esta huella no lleva a ningún sitio</h3>
+    <p style="color:var(--taupe);margin-bottom:26px">La página que buscas no existe o fue movida.</p>
+    <a class="btn btn-primary" href="#/">Volver al inicio</a>
+  </div>
+  ${pageFooter()}`;
+}
+
+/* =========================================================
+   ROUTER
+========================================================= */
+function parseRoute(){
+  const h = location.hash || '#/';
+  const parts = h.replace('#/','').split('/').filter(Boolean);
+  return parts;
+}
+let lastRouteKey = null;
+function render(){
+  const parts = parseRoute();
+  const routeKey = parts.join('/');
+  const sameRoute = routeKey === lastRouteKey;
+  const prevScroll = window.scrollY;
+  const appEl = document.getElementById('app');
+  const ae = document.activeElement;
+  // Si se vuelve a pintar la misma pantalla, se conserva el foco del campo activo y el scroll.
+  const focusSnap = (sameRoute && ae && ae.id && appEl.contains(ae)) ? {id:ae.id,start:ae.selectionStart,end:ae.selectionEnd} : null;
+  let html;
+  const [a,b,c] = parts;
+  if(!a) html = viewLanding();
+  else if(a==='login') html = viewLogin();
+  else if(a==='registro') html = viewRegistro();
+  else if(a==='catalogo') html = viewCatalogo();
+  else if(a==='mascota' && b) html = viewDetalle(b);
+  else if(a==='favoritos') html = viewFavoritos();
+  else if(a==='solicitud' && b) html = viewSolicitud(b);
+  else if(a==='seguimiento') html = viewSeguimiento();
+  else if(a==='perfil') html = viewPerfilUsuario();
+  else if(a==='dashboard') html = viewDashboardUsuario();
+  else if(a==='notificaciones') html = viewNotificaciones();
+  else if(a==='refugio' && b==='dashboard') html = viewDashboardRefugio();
+  else if(a==='refugio' && b==='mascotas' && c==='nueva') html = viewFormMascota(null);
+  else if(a==='refugio' && b==='mascotas' && c==='editar') html = viewFormMascota(parts[3]);
+  else if(a==='refugio' && b==='mascotas') html = viewGestionMascotas();
+  else if(a==='refugio' && b==='solicitudes') html = viewSolicitudesRefugio();
+  else if(a==='refugio' && b==='perfil') html = viewPerfilRefugio();
+  else if(a==='admin' && b==='dashboard') html = viewDashboardAdmin();
+  else if(a==='admin' && b==='usuarios') html = viewAdminUsuarios();
+  else if(a==='admin' && b==='refugios') html = viewAdminRefugios();
+  else if(a==='admin' && b==='solicitudes') html = viewAdminSolicitudes();
+  else if(a==='admin' && b==='reportes') html = viewAdminReportes();
+  else if(a==='nosotros') html = viewLanding();
+  else if(a==='recuperar') html = viewRecuperar();
+  else html = view404();
+
+  appEl.innerHTML = html || '';
+  lastRouteKey = routeKey;
+  if(sameRoute) window.scrollTo(0, prevScroll);
+  if(focusSnap){
+    const el = document.getElementById(focusSnap.id);
+    if(el){ el.focus({preventScroll:true}); try{ if(focusSnap.start!=null) el.setSelectionRange(focusSnap.start,focusSnap.end); }catch(_){} }
+  }
+  if(a==='nosotros'){ const sec = document.getElementById('sobre-nosotros'); if(sec) sec.scrollIntoView(); }
+  document.title = 'ADOPT ME — ' + (a? a.charAt(0).toUpperCase()+a.slice(1) : 'Inicio');
+}
+function viewRecuperar(){
+  return `<div class="auth-shell"><div class="auth-card">
+    <a class="auth-back" href="#/login">&larr; Volver a iniciar sesión</a>
+    <div style="display:flex;justify-content:center;margin-bottom:14px">${Logo({size:44})}</div>
+    <h1>Recuperar contraseña</h1><p class="auth-sub">Te enviaremos un enlace válido por 30 minutos</p>
+    <div class="field"><label>Correo electrónico</label><input type="email" placeholder="tucorreo@ejemplo.com"></div>
+    <button class="btn btn-primary btn-block" onclick="toast('Enlace de recuperación enviado a tu correo','mail');go('#/login')">Enviar enlace</button>
+  </div></div>`;
+}
+
+window.addEventListener('hashchange', ()=>{ state.mobileNavOpen=false; state.sidebarOpen=false; state.userDropdownOpen=false; render(); });
+document.addEventListener('click', (e)=>{
+  const dd = document.getElementById('user-dropdown');
+  if(dd && state.userDropdownOpen && !e.target.closest('.user-chip') && !e.target.closest('.dropdown')){ state.userDropdownOpen=false; dd.classList.remove('open'); }
+});
+render();
+</script>
+</body>
+</html>
